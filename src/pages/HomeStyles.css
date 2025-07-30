@@ -1,0 +1,71 @@
+/* HomeStyles.css */
+.home-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.home-map {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+
+.home-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+
+  pointer-events: none; /* <-- This lets clicks pass through to the map */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+  text-align: center;
+}
+
+.home-title,
+.home-tagline,
+.home-buttons {
+  pointer-events: auto; /* <-- These still remain clickable */
+}
+
+
+.home-tagline {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.home-btn {
+  background: #007bff;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.home-btn.secondary {
+  background: transparent;
+  border: 2px solid white;
+}
+
+.home-btn:hover {
+  background: #0056b3;
+}
