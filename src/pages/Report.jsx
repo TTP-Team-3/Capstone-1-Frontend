@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Report.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Report() {
   // There might need to be a GET request here to validate the echo id even exists initially, but probably not a priority for now
@@ -10,6 +10,16 @@ export default function Report() {
   });
   const [errors, setErrors] = useState({ reasons: "" });
   const params = useParams();
+  const navigate = useNavigate();
+
+  // Validate that id is a number, if not navigate to 404
+  useEffect(() => {
+    if (isNaN(params.id)) {
+      navigate("/404");
+      return null;
+    }
+  }, []);
+
   const reportOptions = [
     "Wrong tags",
     "Hate speech",
