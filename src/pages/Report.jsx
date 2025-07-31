@@ -53,9 +53,10 @@ export default function Report() {
       });
       return;
     }
+    // reporter_id should probably be taken from the JWT in the middleware to prevent unathorized reports
     const reportData = {
       echo_id: params.id,
-      additionalComments: formData["additional-comments"],
+      comments: formData["additional-comments"],
       reasons: Object.keys(formData.reasons).filter(
         (key) => formData.reasons[key] === true,
       ),
