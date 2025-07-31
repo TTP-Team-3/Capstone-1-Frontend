@@ -10,14 +10,25 @@
 
 .report-list {
     list-style-type: none;
-    padding: 0;
+    padding: 15px;
+    width: 95vw;
+    text-align: center;
+    border: 1px solid black;
+    background-color: lightgrey;
+    border-radius: 10px;
 }
 
 .report-list li {
-    margin-bottom: 10px;
+    margin: 10px;
 }
 
 #additional-comments {
     padding: 5px;
     width: 300px;
+    margin-top: 10px;
+}
+
+.errors {
+    color: red;
+    font-weight: bold;
 }

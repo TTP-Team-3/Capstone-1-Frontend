@@ -3,21 +3,24 @@ import "./Report.css";
 import { useParams } from "react-router-dom";
 
 export default function Report() {
+  // There might need to be a GET request here to validate the echo id even exists initially, but probably not a priority for now
   const [formData, setFormData] = useState({
     reasons: {},
     "additional-comments": "",
   });
+  const [errors, setErrors] = useState({ reasons: "" });
   const params = useParams();
   const reportOptions = [
-    "Wrong Tags",
-    "Hate Speech",
-    "Personal Information",
-    "Threats of Violence/Terrorism",
+    "Wrong tags",
+    "Hate speech",
+    "Personal information",
+    "Threats of violence/Terrorism",
     "Breaks TOS",
     "Other",
   ];
 
   function handleChange(event) {
+    setErrors({ reasons: "" });
     const { name, value, checked } = event.target;
     if (name.startsWith("report-reason")) {
       setFormData({
@@ -37,6 +40,19 @@ export default function Report() {
 
   function submitReport(event) {
     event.preventDefault();
+    if (
+      !formData.reasons ||
+      Object.keys(formData.reasons).every((key) => !formData.reasons[key])
+    ) {
+      setErrors({ ...errors, reasons: "You must include at least 1 reason!" });
+      return;
+    } else if (formData.reasons["Other"] && !formData["additional-comments"]) {
+      setErrors({
+        ...errors,
+        other: 'Additional comments required for "Other"!',
+      });
+      return;
+    }
     const reportData = {
       echo_id: params.id,
       additionalComments: formData["additional-comments"],
@@ -45,6 +61,7 @@ export default function Report() {
       ),
     };
     console.log(reportData);
+    // Instead of logging should be a POST request here when ready
   }
 
   return (
@@ -67,9 +84,16 @@ export default function Report() {
       <textarea
         name="additional-comments"
         id="additional-comments"
-        placeholder="Additional Comments"
+        placeholder={
+          !formData.reasons["Other"]
+            ? "Additional Comments(optional)"
+            : "Additional Comments Required"
+        }
         onChange={handleChange}
       ></textarea>
+      <div className="errors" hidden={!errors.reasons && !errors.other}>
+        {errors.reasons || errors.other}
+      </div>
 
       <button type="submit">Submit</button>
     </form>
