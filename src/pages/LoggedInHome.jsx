@@ -26,7 +26,13 @@ const LoggedInHome = ({ user }) => {
           </Marker>
         ))}
       </MapContainer>
-
+            
+            {/* Floating Action Buttons (placeholder) */}
+      <div className="floating-ui">
+        <button className="fab bottom-right">＋</button>
+        <button className="fab bottom-left">☰</button>
+        <button className="fab top-right">👤</button>
+      </div>
     </div>
   );
 };
