@@ -16,7 +16,6 @@ export default function Report() {
   useEffect(() => {
     if (isNaN(params.id)) {
       navigate("/404");
-      return null;
     }
   }, []);
 
