@@ -1,0 +1,23 @@
+.report-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.report-id {
+    margin-bottom: 20px;
+}
+
+.report-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.report-list li {
+    margin-bottom: 10px;
+}
+
+#additional-comments {
+    padding: 5px;
+    width: 300px;
+}
