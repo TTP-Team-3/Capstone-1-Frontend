@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 
@@ -55,6 +56,8 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/profile" element={<Profile setUser={setUser} />} />
+
         </Routes>
       </div>
     </div>
