@@ -7,7 +7,7 @@ export default function EchoMaker({ user }) {
     echoName: "",
     media: "",
     description: "",
-    tags: "",
+    tags: [],
     anonymous: false,
     unlock_datetime: "",
     type: "",
@@ -19,10 +19,32 @@ export default function EchoMaker({ user }) {
   //   }
   // }, []);
 
+  const tags = [
+    "Mood",
+    "Feeling good",
+    "Bad day",
+    "Reflection",
+    "For later",
+    "Note to self",
+    "Motivation",
+    "You and me",
+    "Just us",
+    "Missing you",
+    "Secret",
+  ];
   function createEcho(event) {
     event.preventDefault();
 
     console.log(formData);
+  }
+
+  function removeTag(event) {
+    const tag = event.target.textContent.toLowerCase();
+    const temp = formData.tags.filter((t) => t !== tag);
+    setFormData({
+      ...formData,
+      tags: temp,
+    });
   }
 
   function handleChange(event) {
@@ -31,6 +53,13 @@ export default function EchoMaker({ user }) {
       setFormData({
         ...formData,
         [name]: !formData.anonymous,
+      });
+    } else if (name === "tags") {
+      const temp = formData.tags;
+      temp.push(value);
+      setFormData({
+        ...formData,
+        [name]: temp,
       });
     } else {
       setFormData({
@@ -64,20 +93,41 @@ export default function EchoMaker({ user }) {
         onChange={handleChange}
         value={formData.description}
       ></textarea>
-      <label htmlFor="tags">Tags:</label>
-      <input
-        type="text"
-        name="tags"
-        onChange={handleChange}
-        value={formData.tags}
-      />
-      <label htmlFor="anonymous">Anonymous:</label>
-      <input
-        type="checkbox"
-        name="anonymous"
-        onChange={handleChange}
-        checked={formData.anonymous}
-      />
+      <div>
+        <label htmlFor="tags">Tags:</label>
+        <select name="tags" onChange={handleChange}>
+          {tags.map((tag, index) => (
+            <option
+              key={index}
+              value={tag.toLowerCase()}
+              disabled={formData.tags.includes(tag.toLowerCase())}
+            >
+              {tag}
+            </option>
+          ))}
+        </select>
+        <ul className="list-of-tags">
+          {formData.tags.map((tag, index) => (
+            <li key={tag + index} onClick={removeTag}>
+              {tag
+                .split(" ")
+                .map((word, index) =>
+                  index == 0 ? word[0].toUpperCase() + word.substring(1) : word,
+                )
+                .join(" ")}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <label htmlFor="anonymous">
+        <input
+          type="checkbox"
+          name="anonymous"
+          onChange={handleChange}
+          checked={formData.anonymous}
+        />
+        Anonymous
+      </label>
       <label htmlFor="unlock_datetime">Unlock Time:</label>
       <input
         type="datetime-local"
