@@ -4,6 +4,8 @@ import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import "./HomeStyles.css";
 import L from "leaflet";
+import LoggedInHome from "./LoggedInHome";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
