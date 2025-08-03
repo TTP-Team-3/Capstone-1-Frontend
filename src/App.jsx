@@ -9,6 +9,9 @@ import Signup from "./components/Signup";
 import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import GeoTest from "./pages/Geotest"; // adjust path if needed
+
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -48,13 +51,15 @@ const App = () => {
 
   return (
     <div>
-      {/*<NavBar user={user} onLogout={handleLogout} />*/}
+      <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/geo-test" element={<GeoTest />} />
+
         </Routes>
       </div>
     </div>
