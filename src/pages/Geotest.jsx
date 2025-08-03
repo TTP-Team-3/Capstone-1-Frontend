@@ -53,41 +53,43 @@ const GeoTest = () => {
     }
   };
 
-  return (
-    <div style={{ height: "100vh", width: "100%" }}>
-      {position && (
-        <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <RecenterMap lat={position.lat} lng={position.lng} />
-          <Marker position={[position.lat, position.lng]} icon={userIcon}>
-            <Popup>You are here</Popup>
+ return (
+  <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+    {position && (
+      <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <RecenterMap lat={position.lat} lng={position.lng} />
+        <Marker position={[position.lat, position.lng]} icon={userIcon}>
+          <Popup>You are here</Popup>
+        </Marker>
+        {echoes.map((echo) => (
+          <Marker key={echo.id} position={[echo.lat, echo.lng]} icon={echoIcon}>
+            <Popup>Echo pinned here!</Popup>
           </Marker>
-          {echoes.map((echo) => (
-            <Marker key={echo.id} position={[echo.lat, echo.lng]} icon={echoIcon}>
-              <Popup>Echo pinned here!</Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      )}
-      <button
-        onClick={handleDropEcho}
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          padding: "10px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Drop Echo Here
-      </button>
-    </div>
-  );
+        ))}
+      </MapContainer>
+    )}
+
+    <button
+      onClick={handleDropEcho}
+      style={{
+        position: "absolute",
+        bottom: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        padding: "10px 20px",
+        backgroundColor: "#007bff",
+        color: "white",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+        zIndex: 1000, // Add this to make sure it floats above the map
+      }}
+    >
+      Drop Echo Here
+    </button>
+  </div>
+);
 };
 
 export default GeoTest;
