@@ -16,19 +16,21 @@ const echoIcon = new L.Icon({
   iconAnchor: [15, 30],
 });
 
-const RecenterMap = ({ lat, lng }) => {
+const RecenterMap = ({ lat, lng, onCenter }) => {
   const map = useMap();
   useEffect(() => {
     if (lat && lng) {
       map.setView([lat, lng], 15);
+      onCenter?.();
     }
-  }, [lat, lng, map]);
+  }, [lat, lng, map, onCenter]);
   return null;
 };
 
 const GeoTest = () => {
   const [position, setPosition] = useState(null);
   const [echoes, setEchoes] = useState([]);
+  const [hasCentered, setHasCentered] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -53,43 +55,49 @@ const GeoTest = () => {
     }
   };
 
- return (
-  <div style={{ position: "relative", height: "100vh", width: "100%" }}>
-    {position && (
-      <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <RecenterMap lat={position.lat} lng={position.lng} />
-        <Marker position={[position.lat, position.lng]} icon={userIcon}>
-          <Popup>You are here</Popup>
-        </Marker>
-        {echoes.map((echo) => (
-          <Marker key={echo.id} position={[echo.lat, echo.lng]} icon={echoIcon}>
-            <Popup>Echo pinned here!</Popup>
+  return (
+    <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+      {position && (
+        <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {!hasCentered && (
+            <RecenterMap
+              lat={position.lat}
+              lng={position.lng}
+              onCenter={() => setHasCentered(true)}
+            />
+          )}
+          <Marker position={[position.lat, position.lng]} icon={userIcon}>
+            <Popup>You are here</Popup>
           </Marker>
-        ))}
-      </MapContainer>
-    )}
+          {echoes.map((echo) => (
+            <Marker key={echo.id} position={[echo.lat, echo.lng]} icon={echoIcon}>
+              <Popup>Echo pinned here!</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      )}
 
-    <button
-      onClick={handleDropEcho}
-      style={{
-        position: "absolute",
-        bottom: "20px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        padding: "10px 20px",
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        zIndex: 1000, // Add this to make sure it floats above the map
-      }}
-    >
-      Drop Echo Here
-    </button>
-  </div>
-);
+      <button
+        onClick={handleDropEcho}
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          padding: "10px 20px",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          zIndex: 1000,
+        }}
+      >
+        Drop Echo Here
+      </button>
+    </div>
+  );
 };
 
 export default GeoTest;
