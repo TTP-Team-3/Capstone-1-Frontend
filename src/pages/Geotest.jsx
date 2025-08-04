@@ -1,5 +1,5 @@
 // GeoTest.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -31,6 +31,7 @@ const GeoTest = () => {
   const [position, setPosition] = useState(null);
   const [echoes, setEchoes] = useState([]);
   const [hasCentered, setHasCentered] = useState(false);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -55,10 +56,21 @@ const GeoTest = () => {
     }
   };
 
+  const handleRecenter = () => {
+    if (mapRef.current && position) {
+      mapRef.current.setView([position.lat, position.lng], 15);
+    }
+  };
+
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
       {position && (
-        <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
+        <MapContainer
+          center={[position.lat, position.lng]}
+          zoom={15}
+          style={{ height: "100%", zIndex: 0 }}
+          whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
+        >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {!hasCentered && (
             <RecenterMap
@@ -78,6 +90,7 @@ const GeoTest = () => {
         </MapContainer>
       )}
 
+      {/* Drop Echo Button */}
       <button
         onClick={handleDropEcho}
         style={{
@@ -95,6 +108,26 @@ const GeoTest = () => {
         }}
       >
         Drop Echo Here
+      </button>
+
+      {/* Recenter Button */}
+      <button
+        onClick={handleRecenter}
+        style={{
+          position: "absolute",
+          bottom: "70px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          padding: "8px 16px",
+          backgroundColor: "#28a745",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          zIndex: 1000,
+        }}
+      >
+        Recenter
       </button>
     </div>
   );
