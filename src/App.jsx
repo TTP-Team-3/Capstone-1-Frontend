@@ -9,7 +9,8 @@ import Signup from "./components/Signup";
 import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
-import GeoTest from "./pages/Geotest"; // adjust path if needed
+import GeoTest from "./pages/Geotest";
+import DashboardPage from "./pages/DashboardPage";
 
 
 
@@ -59,6 +60,7 @@ const App = () => {
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/geo-test" element={<GeoTest />} />
+          <Route path="/inbox" element={<DashboardPage />} /> 
 
         </Routes>
       </div>
