@@ -16,69 +16,68 @@ const echoIcon = new L.Icon({
   iconAnchor: [15, 30],
 });
 
-const RecenterMap = ({ lat, lng, onCenter }) => {
+// Recenter only when manually triggered
+const RecenterMap = ({ trigger, lat, lng }) => {
   const map = useMap();
+
   useEffect(() => {
-    if (lat && lng) {
+    if (trigger && lat && lng) {
       map.setView([lat, lng], 15);
-      onCenter?.();
     }
-  }, [lat, lng, map, onCenter]);
+  }, [trigger, lat, lng, map]);
+
   return null;
 };
 
 const GeoTest = () => {
   const [position, setPosition] = useState(null);
   const [echoes, setEchoes] = useState([]);
-  const [hasCentered, setHasCentered] = useState(false);
-  const mapRef = useRef(null);
+  const [recenterTrigger, setRecenterTrigger] = useState(false);
+  const initialPositionRef = useRef(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
         (pos) => {
-          setPosition({
+          const coords = {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
-          });
+          };
+          setPosition(coords);
+          if (!initialPositionRef.current) {
+            initialPositionRef.current = coords;
+          }
         },
-        (err) => console.error(err),
+        (err) => {
+          console.error("Geolocation error:", err.message);
+          alert("Location access denied or unavailable.");
+        },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
 
       return () => navigator.geolocation.clearWatch(watchId);
+    } else {
+      alert("Geolocation is not supported by your browser.");
     }
   }, []);
 
   const handleDropEcho = () => {
     if (position) {
-      setEchoes([...echoes, { ...position, id: Date.now() }]);
+      setEchoes((prev) => [...prev, { ...position, id: Date.now() }]);
     }
   };
 
   const handleRecenter = () => {
-    if (mapRef.current && position) {
-      mapRef.current.setView([position.lat, position.lng], 15);
-    }
+    setRecenterTrigger(true);
+    setTimeout(() => setRecenterTrigger(false), 100); // reset trigger
   };
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
       {position && (
-        <MapContainer
-          center={[position.lat, position.lng]}
-          zoom={15}
-          style={{ height: "100%", zIndex: 0 }}
-          whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
-        >
+        <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: "100%" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {!hasCentered && (
-            <RecenterMap
-              lat={position.lat}
-              lng={position.lng}
-              onCenter={() => setHasCentered(true)}
-            />
-          )}
+          <RecenterMap trigger={recenterTrigger} lat={position.lat} lng={position.lng} />
           <Marker position={[position.lat, position.lng]} icon={userIcon}>
             <Popup>You are here</Popup>
           </Marker>
@@ -90,45 +89,35 @@ const GeoTest = () => {
         </MapContainer>
       )}
 
-      {/* Drop Echo Button */}
-      <button
-        onClick={handleDropEcho}
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          padding: "10px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          zIndex: 1000,
-        }}
-      >
-        Drop Echo Here
-      </button>
+      <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", zIndex: 1000, display: "flex", gap: "10px" }}>
+        <button
+          onClick={handleDropEcho}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Drop Echo Here
+        </button>
 
-      {/* Recenter Button */}
-      <button
-        onClick={handleRecenter}
-        style={{
-          position: "absolute",
-          bottom: "70px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          padding: "8px 16px",
-          backgroundColor: "#28a745",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          zIndex: 1000,
-        }}
-      >
-        Recenter
-      </button>
+        <button
+          onClick={handleRecenter}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "rgb(40, 167, 69)",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Recenter
+        </button>
+      </div>
     </div>
   );
 };
