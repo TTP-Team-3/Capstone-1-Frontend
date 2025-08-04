@@ -13,6 +13,7 @@ export default function EchoMaker({ user }) {
     unlock_datetime: "",
     type: "",
     friends: [],
+    geolocation: "",
   });
   const navigate = useNavigate();
   // useEffect(() => {
@@ -34,7 +35,7 @@ export default function EchoMaker({ user }) {
   }
 
   function handleChange(event) {
-    const { name, value } = event.target;
+    const { checked, name, value } = event.target;
     if (name === "anonymous") {
       setFormData({
         ...formData,
@@ -54,6 +55,30 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
+    } else if (name === "geolocation") {
+      if (checked) {
+        const options = {
+          enableHighAccuracy: true,
+        };
+        const success = (position) => {
+          setFormData({
+            ...formData,
+            geolocation: {
+              longitude: position.coords.longitude,
+              latitude: position.coords.latitude,
+            },
+          });
+        };
+        const error = (error) => {
+          console.error(error);
+        };
+        navigator.geolocation.getCurrentPosition(success, error, options);
+      } else {
+        setFormData({
+          ...formData,
+          geolocation: "",
+        });
+      }
     } else {
       setFormData({
         ...formData,
@@ -100,6 +125,21 @@ export default function EchoMaker({ user }) {
         />
         Post anonymously
       </label>
+      <label htmlFor="geolocation">
+        <input
+          type="checkbox"
+          name="geolocation"
+          onChange={handleChange}
+          value={formData.geolocation}
+          checked={formData.geolocation}
+        />
+        Post with geolocation
+      </label>
+      {formData.geolocation && (
+        <p>
+          {formData.geolocation.latitude}, {formData.geolocation.longitude}
+        </p>
+      )}
       <label htmlFor="unlock_datetime">Unlock Time:</label>
       <input
         type="datetime-local"
