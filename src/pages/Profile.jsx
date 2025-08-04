@@ -18,6 +18,7 @@ const Profile = () => {
     username: "",
     email: "",
     img: "",
+    bio: "",
   });
 
   useEffect(() => {
@@ -49,6 +50,7 @@ const Profile = () => {
         username: user.username || "",
         email: user.email || "",
         img: user.img || "",
+        bio: user.bio || "",
       });
     }
   }, [user]);
@@ -133,6 +135,14 @@ const Profile = () => {
             onChange={handleChange}
             placeholder="Image URL"
           />
+          <h3>Bio</h3>
+          <input
+            type="text"
+            name="bio"
+            value={formData.bio}
+            onChange={handleChange}
+            placeholder="User Bio"
+          />
           <button type="submit">Save</button>
           <button type="button" onClick={handleEditToggle}>
             Cancel
@@ -153,6 +163,9 @@ const Profile = () => {
             <h2>
               {user.firstName} {user.lastName}
             </h2>
+            <p>
+              <strong>Bio:</strong> {user.bio}
+            </p>
             <p>
               <strong>Username:</strong> {user.username}
             </p>
