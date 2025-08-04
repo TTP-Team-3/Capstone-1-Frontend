@@ -12,6 +12,7 @@ export default function EchoMaker({ user }) {
     anonymous: false,
     unlock_datetime: "",
     type: "",
+    friends: [],
   });
   const navigate = useNavigate();
   // useEffect(() => {
@@ -19,6 +20,12 @@ export default function EchoMaker({ user }) {
   //     navigate("/");
   //   }
   // }, []);
+
+  const MOCK_USERS = [
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+    { id: 3, name: "Charlie" },
+  ];
 
   function createEcho(event) {
     event.preventDefault();
@@ -101,7 +108,15 @@ export default function EchoMaker({ user }) {
           <option value="friends">Friends</option>
           <option value="private">Private</option>
         </select>
-        <select name="friends" value={formData.friends}></select>
+        {formData.type === "friends" && (
+          <select value={null}>
+            {MOCK_USERS.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
       <button type="submit">Create Echo</button>
     </form>
