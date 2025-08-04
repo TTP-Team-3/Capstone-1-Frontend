@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
-// import "../components/AuthStyles.css";
 import "./ProfileStyles.css";
-// import "../components/ProfileStyles.css";
-import NavBarfrom from "../components/NavBar";
+import NavBar from "../components/NavBar";
 
 
 const Profile = () => {
   const { userId } = useParams();
+  // const {id} = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -24,7 +23,9 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/users/${userId}`, {
+        // const response = await axios.get(`${API_URL}/api/users/${userId}`, {
+        const response = await axios.get(`${API_URL}/auth/me`, {
+        // const response = await axios.get(`${API_URL}/api/users/${userId}`, {
           withCredentials: true,
         });
         setUser(response.data);
@@ -40,6 +41,7 @@ const Profile = () => {
     };
     fetchUser();
   }, [userId]);
+  // }, [id]);
 
   useEffect(() => {
     if (user) {
@@ -77,6 +79,8 @@ const Profile = () => {
     try {
       const res = await axios.patch(
         `${API_URL}/api/users/${userId}`,
+        // `${API_URL}/api/users/${user.id}`,
+
         formData,
         { withCredentials: true }
       );

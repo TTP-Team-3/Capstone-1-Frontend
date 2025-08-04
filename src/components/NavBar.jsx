@@ -1,8 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
+  const location = useLocation();
+
   return (
     <nav className="navbar">
       <div className="nav-brand">
@@ -12,16 +14,25 @@ const NavBar = ({ user, onLogout }) => {
       <div className="nav-links">
         {user ? (
           <div className="user-section">
-            <span className="username">Welcome, {user.username}!</span>
-            <button onClick={onLogout} className="logout-btn">
-              Logout
-            </button>
+            {/* ✅ Show link if user is logged in */}
+            {user.username && (
+              <>
+                <Link
+                  to={`/profile/${user.id}`}
+                  className={`profile-nav-btn nav-link${
+                    location.pathname === `/profile/${user.id}` ? " active" : ""
+                  }`}
+                >
+                  {`Welcome, ${user.username}!`}
+                </Link>
+                <button onClick={onLogout} className="logout-btn">
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="auth-links">
-            <Link to="/profile" className="nav-link">
-              Profile
-            </Link>
             <Link to="/login" className="nav-link">
               Login
             </Link>

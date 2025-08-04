@@ -50,7 +50,7 @@ const App = () => {
 
   return (
     <div>
-      {/*<NavBar user={user} onLogout={handleLogout} />*/}
+      <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
@@ -58,8 +58,7 @@ const App = () => {
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="/report/:id" element={<Report />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/profile" element={<Profile setUser={setUser} />} />
-
+          <Route path="/profile/:userId" element={<Profile />} />
         </Routes>
       </div>
     </div>
