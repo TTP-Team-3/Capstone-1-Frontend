@@ -15,6 +15,8 @@ export default function EchoMaker({ user }) {
     friends: [],
     geolocation: "",
   });
+  const [errors, setErrors] = useState({});
+  console.log(errors);
   const navigate = useNavigate();
   // useEffect(() => {
   //   if (!user) {
@@ -30,12 +32,39 @@ export default function EchoMaker({ user }) {
 
   function createEcho(event) {
     event.preventDefault();
+    if (!formData.echoName) {
+      setErrors({ ...errors, echoName: "Please give your echo a name!" });
+      return;
+    }
+    if (!formData.tags.length) {
+      setErrors({ ...errors, tags: "Atleast 1 tag is required!" });
+      return;
+    }
+    if (formData.type === "") {
+      setErrors({ ...errors, type: "Please choose a type!" });
+      return;
+    }
+    if (formData.type === "friends" && formData.friends.length === 0) {
+      setErrors({
+        ...errors,
+        friends: "Please include friends you would like to share with.",
+      });
+      return;
+    }
+    if (formData.unlock_datetime === "") {
+      setErrors({
+        ...errors,
+        unlock_datetime: "Please enter a date/time!",
+      });
+      return;
+    }
 
     console.log(formData);
   }
 
   function handleChange(event) {
     const { checked, name, value } = event.target;
+    setErrors({});
     if (name === "anonymous") {
       setFormData({
         ...formData,
@@ -169,6 +198,11 @@ export default function EchoMaker({ user }) {
           </select>
         )}
       </div>
+      {errors.echoName && <p>{errors.echoName}</p>}
+      {errors.tags && <p>{errors.tags}</p>}
+      {errors.unlock_datetime && <p>{errors.unlock_datetime}</p>}
+      {errors.type && <p>{errors.type}</p>}
+      {errors.friends && <p>{errors.friends}</p>}
       <button type="submit">Create Echo</button>
     </form>
   );
