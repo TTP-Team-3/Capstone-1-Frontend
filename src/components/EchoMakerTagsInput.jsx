@@ -29,7 +29,10 @@ export default function EchoMakerTagsInput({
   return (
     <div>
       <label htmlFor="tags">Tags:</label>
-      <select name="tags" onChange={handleChange}>
+      <select
+        name="tags"
+        onChange={handleChange}
+      >
         {tags.map((tag, index) => (
           <option
             key={index}

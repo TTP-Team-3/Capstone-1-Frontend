@@ -47,6 +47,13 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
+    } else if (name === "friends") {
+      const temp = formData.friends;
+      temp.push(Number(value));
+      setFormData({
+        ...formData,
+        [name]: temp,
+      });
     } else {
       setFormData({
         ...formData,
@@ -109,9 +116,13 @@ export default function EchoMaker({ user }) {
           <option value="private">Private</option>
         </select>
         {formData.type === "friends" && (
-          <select value={null}>
+          <select name="friends" onChange={handleChange}>
             {MOCK_USERS.map((user) => (
-              <option key={user.id} value={user.id}>
+              <option
+                key={user.id}
+                value={user.id}
+                disabled={formData.friends.includes(Number(user.id))}
+              >
                 {user.name}
               </option>
             ))}
