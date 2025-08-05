@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EchoMaker.css";
 import EchoMakerTagsInput from "../components/EchoMakerTagsInput";
+import FileUpload from "../components/FileUpload";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
     echoName: "",
-    media: "",
+    media: [],
     description: "",
     tags: [],
     anonymous: false,
@@ -15,8 +16,8 @@ export default function EchoMaker({ user }) {
     friends: [],
     geolocation: "",
   });
+  console.log(formData);
   const [errors, setErrors] = useState({});
-  console.log(errors);
   const navigate = useNavigate();
   // useEffect(() => {
   //   if (!user) {
@@ -102,6 +103,13 @@ export default function EchoMaker({ user }) {
           console.error(error);
         };
         navigator.geolocation.getCurrentPosition(success, error, options);
+      } else if (name === "media") {
+        const temp = formData.media;
+        temp.push(value);
+        setFormData({
+          ...formData,
+          media: temp,
+        });
       } else {
         setFormData({
           ...formData,
@@ -125,14 +133,7 @@ export default function EchoMaker({ user }) {
         value={formData.echoName}
         onChange={handleChange}
       />
-      <label htmlFor="media">Add media:</label>
-      <input
-        type="file"
-        name="media"
-        value={formData.media}
-        onChange={handleChange}
-        multiple
-      />
+      <FileUpload handleChange={handleChange} />
       <label htmlFor="description">Description:</label>
       <textarea
         name="description"
