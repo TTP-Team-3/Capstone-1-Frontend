@@ -13,7 +13,7 @@ export default function EchoMaker({ user }) {
     anonymous: false,
     unlock_datetime: "",
     type: "",
-    friends: [],
+    friendIds: [],
     geolocation: "",
   });
   console.log(formData);
@@ -36,8 +36,8 @@ export default function EchoMaker({ user }) {
     if (formData.type === "") {
       errors["type"] = "Please choose a type!";
     }
-    if (formData.type === "friends" && formData.friends.length === 0) {
-      errors["friends"] = "Please include friends to share with.";
+    if (formData.type === "friends" && formData.friendIds.length === 0) {
+      errors["friendIds"] = "Please include friends to share with.";
     }
     if (formData.unlock_datetime === "") {
       errors["unlock_datetime"] = "Please enter an unlock date and time!";
@@ -68,8 +68,8 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
-    } else if (name === "friends") {
-      const temp = formData.friends;
+    } else if (name === "friendIds") {
+      const temp = formData.friendIds;
       temp.push(Number(value));
       setFormData({
         ...formData,
