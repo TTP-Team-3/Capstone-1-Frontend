@@ -19,7 +19,7 @@ export default function EchoMakerTagsInput({
     "Secret",
   ];
   function removeTag(event) {
-    const tag = event.target.textContent.toLowerCase();
+    const tag = event.target.textContent;
     const temp = formData.tags.filter((t) => t !== tag);
     setFormData({
       ...formData,
@@ -29,15 +29,12 @@ export default function EchoMakerTagsInput({
   return (
     <div>
       <label htmlFor="tags">Tags:</label>
-      <select
-        name="tags"
-        onChange={handleChange}
-      >
+      <select name="tags" onChange={handleChange}>
         {tags.map((tag, index) => (
           <option
             key={index}
-            value={tag.toLowerCase()}
-            disabled={formData.tags.includes(tag.toLowerCase())}
+            value={tag}
+            disabled={formData.tags.includes(tag)}
           >
             {tag}
           </option>
@@ -46,12 +43,7 @@ export default function EchoMakerTagsInput({
       <ul className="list-of-tags">
         {formData.tags.map((tag, index) => (
           <li key={tag + index} onClick={removeTag}>
-            {tag
-              .split(" ")
-              .map((word, index) =>
-                index == 0 ? word[0].toUpperCase() + word.substring(1) : word,
-              )
-              .join(" ")}
+            {tag}
           </li>
         ))}
       </ul>

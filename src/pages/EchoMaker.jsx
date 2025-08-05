@@ -47,10 +47,9 @@ export default function EchoMaker({ user }) {
 
   function createEcho(event) {
     event.preventDefault();
-    if (checkForErrors()) {
+    if (Object.keys(checkForErrors()).length !== 0) {
       return setErrors(checkForErrors());
     }
-
     console.log(formData);
   }
 
@@ -62,8 +61,8 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: !formData.anonymous,
       });
-    } else if (name === "tags") {
-      const temp = formData.tags;
+    } else if (name === "tags" || name === "media") {
+      const temp = formData[name];
       temp.push(value);
       setFormData({
         ...formData,
@@ -80,33 +79,28 @@ export default function EchoMaker({ user }) {
       if (checked) {
         const options = {
           enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
         };
-        const success = (position) => {
+        function success(position) {
           setFormData({
             ...formData,
-            geolocation: {
+            [name]: {
               longitude: position.coords.longitude,
               latitude: position.coords.latitude,
             },
           });
-        };
-        const error = (error) => {
+        }
+        function error(error) {
           console.error(error);
-        };
+        }
         navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
         setFormData({
           ...formData,
-          geolocation: "",
+          [name]: "",
         });
       }
-    } else if (name === "media") {
-      const temp = formData.media;
-      temp.push(value);
-      setFormData({
-        ...formData,
-        media: temp,
-      });
     } else {
       setFormData({
         ...formData,
@@ -125,13 +119,7 @@ export default function EchoMaker({ user }) {
         onChange={handleChange}
       />
       <label htmlFor="media">Select Media: </label>
-      <input
-        type="file"
-        name="media"
-        onChange={handleChange}
-        multiple
-        value={formData.media}
-      />
+      <input type="file" name="media" onChange={handleChange} multiple />
       <label htmlFor="description">Description:</label>
       <textarea
         name="description"
