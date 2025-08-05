@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./NavBarStyles.css";
 //This is from capstone 1
-
 const NavBar = ({ user, onLogout }) => {
   const location = useLocation();
 

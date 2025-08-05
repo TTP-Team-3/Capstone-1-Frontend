@@ -4,7 +4,7 @@ import "./EchoCard.css";
 
 const EchoCard = ({ echo, onClick, onUnlock }) => {
   const handleUnlock = (e) => {
-    e.stopPropagation(); // prevent parent onClick (if viewing full echo)
+    e.stopPropagation(); // prevent parent onClick
     onUnlock?.(echo.id);
   };
 
