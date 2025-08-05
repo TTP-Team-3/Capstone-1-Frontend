@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EchoMaker.css";
 import EchoMakerTagsInput from "../components/EchoMakerTagsInput";
-import FileUpload from "../components/FileUpload";
+import EchoMakerTypeInput from "../components/EchoMakerTypeInput";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
@@ -25,39 +25,30 @@ export default function EchoMaker({ user }) {
   //   }
   // }, []);
 
-  const MOCK_USERS = [
-    { id: 1, name: "Alice" },
-    { id: 2, name: "Bob" },
-    { id: 3, name: "Charlie" },
-  ];
+  function checkForErrors() {
+    const errors = {};
+    if (!formData.echoName) {
+      errors["echoName"] = "Please give your echo a name!";
+    }
+    if (!formData.tags.length) {
+      errors["tags"] = "Atleast 1 tag is required!";
+    }
+    if (formData.type === "") {
+      errors["type"] = "Please choose a type!";
+    }
+    if (formData.type === "friends" && formData.friends.length === 0) {
+      errors["friends"] = "Please include friends to share with.";
+    }
+    if (formData.unlock_datetime === "") {
+      errors["unlock_datetime"] = "Please enter an unlock date and time!";
+    }
+    return errors;
+  }
 
   function createEcho(event) {
     event.preventDefault();
-    if (!formData.echoName) {
-      setErrors({ ...errors, echoName: "Please give your echo a name!" });
-      return;
-    }
-    if (!formData.tags.length) {
-      setErrors({ ...errors, tags: "Atleast 1 tag is required!" });
-      return;
-    }
-    if (formData.type === "") {
-      setErrors({ ...errors, type: "Please choose a type!" });
-      return;
-    }
-    if (formData.type === "friends" && formData.friends.length === 0) {
-      setErrors({
-        ...errors,
-        friends: "Please include friends you would like to share with.",
-      });
-      return;
-    }
-    if (formData.unlock_datetime === "") {
-      setErrors({
-        ...errors,
-        unlock_datetime: "Please enter a date/time!",
-      });
-      return;
+    if (checkForErrors()) {
+      return setErrors(checkForErrors());
     }
 
     console.log(formData);
@@ -103,19 +94,19 @@ export default function EchoMaker({ user }) {
           console.error(error);
         };
         navigator.geolocation.getCurrentPosition(success, error, options);
-      } else if (name === "media") {
-        const temp = formData.media;
-        temp.push(value);
-        setFormData({
-          ...formData,
-          media: temp,
-        });
       } else {
         setFormData({
           ...formData,
           geolocation: "",
         });
       }
+    } else if (name === "media") {
+      const temp = formData.media;
+      temp.push(value);
+      setFormData({
+        ...formData,
+        media: temp,
+      });
     } else {
       setFormData({
         ...formData,
@@ -133,7 +124,14 @@ export default function EchoMaker({ user }) {
         value={formData.echoName}
         onChange={handleChange}
       />
-      <FileUpload handleChange={handleChange} />
+      <label htmlFor="media">Select Media: </label>
+      <input
+        type="file"
+        name="media"
+        onChange={handleChange}
+        multiple
+        value={formData.media}
+      />
       <label htmlFor="description">Description:</label>
       <textarea
         name="description"
@@ -163,11 +161,12 @@ export default function EchoMaker({ user }) {
           value={formData.geolocation}
           checked={formData.geolocation}
         />
-        Post with geolocation
+        Pin on my location
       </label>
       {formData.geolocation && (
         <p>
-          {formData.geolocation.latitude}, {formData.geolocation.longitude}
+          Latitude: {formData.geolocation.latitude}, Longitude:{" "}
+          {formData.geolocation.longitude}
         </p>
       )}
       <label htmlFor="unlock_datetime">Unlock Time:</label>
@@ -177,33 +176,10 @@ export default function EchoMaker({ user }) {
         onChange={handleChange}
         value={formData.unlock_datetime}
       />
-      <label htmlFor="type">Type:</label>
-      <div>
-        <select name="type" value={formData.type} onChange={handleChange}>
-          <option value="">--Choose Type--</option>
-          <option value="public">Public</option>
-          <option value="friends">Friends</option>
-          <option value="private">Private</option>
-        </select>
-        {formData.type === "friends" && (
-          <select name="friends" onChange={handleChange}>
-            {MOCK_USERS.map((user) => (
-              <option
-                key={user.id}
-                value={user.id}
-                disabled={formData.friends.includes(Number(user.id))}
-              >
-                {user.name}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-      {errors.echoName && <p>{errors.echoName}</p>}
-      {errors.tags && <p>{errors.tags}</p>}
-      {errors.unlock_datetime && <p>{errors.unlock_datetime}</p>}
-      {errors.type && <p>{errors.type}</p>}
-      {errors.friends && <p>{errors.friends}</p>}
+      <EchoMakerTypeInput formData={formData} handleChange={handleChange} />
+      {Object.values(errors).map((error, index) => (
+        <p key={error + index}>{error}</p>
+      ))}
       <button type="submit">Create Echo</button>
     </form>
   );
