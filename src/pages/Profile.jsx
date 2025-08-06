@@ -5,7 +5,6 @@ import { API_URL } from "../shared";
 import "./ProfileStyles.css";
 import NavBar from "../components/NavBar";
 
-
 const Profile = () => {
   const { userId } = useParams();
   // const {id} = useParams();
@@ -21,6 +20,16 @@ const Profile = () => {
     bio: "",
   });
 
+  const dummyFriends = [
+    //dummy data for friends
+    { id: 1, username: "andy", email: "jeramy@gmail.com" },
+    { id: 2, username: "barbie", email: "aiyanna@gmail.com" },
+    { id: 3, username: "cassie", email: "emmanuel@gmail.com" },
+    { id: 4, username: "diane", email: "olivia@gmail.com" },
+  ];
+  const [friends, setFriends] = useState(dummyFriends);
+  const [showFriends, setShowFriends] = useState(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -28,6 +37,20 @@ const Profile = () => {
           withCredentials: true,
         });
         setUser(response.data);
+        
+        try {
+          // const fetchFriends = await axios.get(`${API_URL}/api/users/${userId}/friends`, {
+          const friendsResponse = await axios.get(
+            `${API_URL}/api/users/${userId}/friends`,
+            {
+              withCredentials: true,
+            }
+          );
+          setFriends(friendsResponse.data);
+        } catch {
+          console.warn("Could not fetch real friends; using dummyFriends.");
+        }
+
       } catch (err) {
         if (err.response?.status === 404) {
           setError("User not found.");
@@ -40,7 +63,6 @@ const Profile = () => {
     };
     fetchUser();
   }, [userId]);
-  // }, [id]);
 
   useEffect(() => {
     if (user) {
@@ -106,28 +128,28 @@ const Profile = () => {
             value={formData.firstName}
             onChange={handleChange}
           />
-            <h3>Last Name</h3>
+          <h3>Last Name</h3>
           <input
             type="text"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
           />
-            <h3>Username</h3>
+          <h3>Username</h3>
           <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
           />
-            <h3>Email</h3>
+          <h3>Email</h3>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
           />
-            <h3>Profile Image</h3>
+          <h3>Profile Image</h3>
           <input
             type="text"
             name="img"
@@ -163,6 +185,14 @@ const Profile = () => {
             <h2>
               {user.firstName} {user.lastName}
             </h2>
+
+            <button onClick={() => 
+              setShowFriends(!showFriends)} 
+              className="friends-toggle-button"
+            >
+              {showFriends ? "Hide Friends" : "Friends:"} ({friends.length})
+            </button>
+
             <p>
               <strong>Bio:</strong> {user.bio}
             </p>
@@ -174,9 +204,28 @@ const Profile = () => {
             </p>
             {user.isAdmin && <span className="admin-badge">Admin</span>}
             <button onClick={handleEditToggle} className="edit-button">
-              Edit 
+              Edit
             </button>
           </div>
+            
+          {showFriends && (
+            <div className="friends-list">
+              <h3>Friends ({friends.length}) </h3>
+              {friends.length === 0 ? (
+                <p> This user has no friends yet.</p>
+              ) : (
+                <li>
+                  {friends.map((friend) => (
+                    <li key={friend.id}>
+                      <Link to={`/users/${friend.id}`}>{friend.username}</Link>
+                    </li>
+                  ))}
+                </li>
+              )}
+            </div>
+          )}
+
+
         </div>
       )}
     </div>
