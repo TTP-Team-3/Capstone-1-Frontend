@@ -1,4 +1,3 @@
-// EchoCard.jsx
 import React from "react";
 import "./EchoCard.css";
 
@@ -30,7 +29,7 @@ const EchoCard = ({ echo, onClick, onUnlock }) => {
       )}
 
       <div className="echo-meta">
-        <span className="echo-unlock">Unlocks: {echo.unlock_datetime}</span>
+        <span className="echo-unlock">Unlocks: {new Date(echo.unlock_datetime).toLocaleString()}</span>
         <span className={`echo-status ${echo.is_unlocked ? "unlocked" : "locked"}`}>
           {echo.is_unlocked ? "Unlocked" : "Locked"}
         </span>
