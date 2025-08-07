@@ -3,21 +3,24 @@
     flex-direction: column;
 }
 
-.list-of-tags {
+.list-of-tags,
+.list-of-friends {
     display: flex;
     flex-wrap: wrap;
     list-style-type: none;
     width: 280px;
 }
 
-.list-of-tags li {
+.list-of-tags li,
+.list-of-friends li {
     margin-right: 5px;
     border: 1px solid black;
     padding: 1px;
     border-radius: 5px;
 }
 
-.list-of-tags li:hover {
+.list-of-tags li:hover,
+.list-of-friends li:hover {
     background-color: red;
     font-weight: bold;
     cursor: pointer;

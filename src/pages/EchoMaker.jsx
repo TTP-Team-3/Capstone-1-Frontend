@@ -50,7 +50,16 @@ export default function EchoMaker({ user }) {
     if (Object.keys(checkForErrors()).length !== 0) {
       return setErrors(checkForErrors());
     }
-    console.log(formData);
+
+    const formDataToSend = formData;
+    if (
+      formDataToSend.type !== "Friends" &&
+      formDataToSend.friendIds.length > 0
+    ) {
+      formDataToSend.friendIds = [];
+    }
+
+    console.log(formDataToSend);
   }
 
   function handleChange(event) {
@@ -164,7 +173,11 @@ export default function EchoMaker({ user }) {
         onChange={handleChange}
         value={formData.unlock_datetime}
       />
-      <EchoMakerTypeInput formData={formData} handleChange={handleChange} />
+      <EchoMakerTypeInput
+        formData={formData}
+        setFormData={setFormData}
+        handleChange={handleChange}
+      />
       {Object.values(errors).map((error, index) => (
         <p key={error + index}>{error}</p>
       ))}
