@@ -22,10 +22,14 @@ const Profile = () => {
 
   const dummyFriends = [
     //dummy data for friends
-    { id: 1, username: "andy", email: "jeramy@gmail.com" },
-    { id: 2, username: "barbie", email: "aiyanna@gmail.com" },
-    { id: 3, username: "cassie", email: "emmanuel@gmail.com" },
-    { id: 4, username: "diane", email: "olivia@gmail.com" },
+    { id: 1, username: "jeramy", email: "jeramy@gmail.com" },
+    { id: 2, username: "aiyanna", email: "jeramy@gmail.com" },
+    { id: 3, username: "emmanuel", email: "jeramy@gmail.com" },
+    { id: 4, username: "olivia", email: "jeramy@gmail.com" },
+    { id: 5, username: "andy", email: "jeramy@gmail.com" },
+    { id: 6, username: "barbie", email: "aiyanna@gmail.com" },
+    { id: 7, username: "cassie", email: "emmanuel@gmail.com" },
+    { id: 8, username: "diane", email: "olivia@gmail.com" },
   ];
   const [friends, setFriends] = useState(dummyFriends);
   const [showFriends, setShowFriends] = useState(false);
@@ -101,8 +105,6 @@ const Profile = () => {
     try {
       const res = await axios.patch(
         `${API_URL}/api/users/${userId}`,
-        // `${API_URL}/api/users/${user.id}`,
-
         formData,
         { withCredentials: true }
       );
@@ -111,6 +113,21 @@ const Profile = () => {
     } catch (error) {
       console.error("Failed to update profile:", error);
       setError("Failed to update profile. Please try again.");
+    }
+  };
+
+  const loggedInUserId = localStorage.getItem("userId");
+  const handleAddFriend = async () => {
+    try {
+      const responde = await axios.post(
+        `${API_URL}/api/users/${loggedInUserId}/friends`,
+        { friendId: user._id},
+        { withCredentials: true}
+      );
+      alert("Friend added!");
+    } catch (error) {
+      console.error("Failed to add friend: ", error);
+      alert("Could not add as friend.");
     }
   };
 
@@ -193,6 +210,10 @@ const Profile = () => {
               {showFriends ? "Hide Friends" : "Friends:"} ({friends.length})
             </button>
 
+            <button onClick={handleAddFriend} classNamr="add-friend-button">
+              Add Friend
+            </button>
+
             <p>
               <strong>Bio:</strong> {user.bio}
             </p>
@@ -214,13 +235,13 @@ const Profile = () => {
               {friends.length === 0 ? (
                 <p> This user has no friends yet.</p>
               ) : (
-                <li>
+                <p>
                   {friends.map((friend) => (
                     <li key={friend.id}>
-                      <Link to={`/users/${friend.id}`}>{friend.username}</Link>
+                      <Link to={`/profile/${friend.id}`}>{friend.username}</Link>
                     </li>
                   ))}
-                </li>
+                </p>
               )}
             </div>
           )}
