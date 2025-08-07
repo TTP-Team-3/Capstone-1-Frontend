@@ -119,7 +119,7 @@ const Profile = () => {
   const loggedInUserId = localStorage.getItem("userId");
   const handleAddFriend = async () => {
     try {
-      const responde = await axios.post(
+      const response = await axios.post(
         `${API_URL}/api/users/${loggedInUserId}/friends`,
         { friendId: user._id},
         { withCredentials: true}
