@@ -16,8 +16,8 @@ const mockEchoData = [
     sender_id: 1,
     show_sender_name: false,
     type: "public",
-    unlock_datetime: "2025-08-10T10:00:00Z",
-    is_unlocked: true,
+    unlock_datetime: "2025-08-06T15:50:00Z",
+    is_unlocked: false,
     tags: ["motivation"],
     reaction_summary: { happy: 5, inspired: 2 }
   },
