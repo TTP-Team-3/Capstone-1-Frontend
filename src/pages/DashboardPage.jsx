@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import EchoList from "../components/EchoList";
 import EchoPopup from "../components/EchoPopup"; 
+import EchoMapPreview from "../components/EchoMapPreview";
 import mockEchoData from "../utils/mockEchoData";
 import "./DashboardStyles.css";
 
@@ -76,9 +77,13 @@ const DashboardPage = () => {
       </div>
 
       {/* Right Panel: Map Preview */}
-      <div className="dashboard-right">
-        <p>[ Map Preview Component Placeholder ]</p>
-      </div>
+        <div className="dashboard-right">
+        <EchoMapPreview
+            echoes={filteredEchoes}
+            focusedEcho={popupEcho}
+        />
+        </div>
+
 
       {/* 🔓 Unlock Popup */}
       {popupEcho && (
