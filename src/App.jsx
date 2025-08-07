@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import Report from "./pages/Report";
@@ -49,7 +50,7 @@ const App = () => {
 
   return (
     <div>
-      {/*<NavBar user={user} onLogout={handleLogout} />*/}
+      <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
@@ -57,6 +58,7 @@ const App = () => {
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="/report/:id" element={<Report />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/profile/:userId" element={<Profile />} />
         </Routes>
       </div>
     </div>
