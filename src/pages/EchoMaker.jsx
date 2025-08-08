@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./EchoMaker.css";
 import EchoMakerTagsInput from "../components/EchoMakerTagsInput";
 import EchoMakerTypeInput from "../components/EchoMakerTypeInput";
+import EchoMakerGeolocationDisplay from "../components/EchoMakerGeolocationDisplay";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
@@ -119,69 +120,69 @@ export default function EchoMaker({ user }) {
   }
 
   return (
-    <form className="create-echo-form" onSubmit={createEcho}>
-      <label htmlFor="echoName">Echo Name:</label>
-      <input
-        type="text"
-        name="echoName"
-        value={formData.echoName}
-        onChange={handleChange}
-      />
-      <label htmlFor="media">Select Media: </label>
-      <input type="file" name="media" onChange={handleChange} multiple />
-      <label htmlFor="description">Description:</label>
-      <textarea
-        name="description"
-        id="description"
-        onChange={handleChange}
-        value={formData.description}
-      ></textarea>
-      <EchoMakerTagsInput
+    <div className="echo-maker-container">
+      <form className="create-echo-form" onSubmit={createEcho}>
+        <label htmlFor="echoName">Echo Name:</label>
+        <input
+          type="text"
+          name="echoName"
+          value={formData.echoName}
+          onChange={handleChange}
+        />
+        <label htmlFor="media">Select Media: </label>
+        <input type="file" name="media" onChange={handleChange} multiple />
+        <label htmlFor="description">Description:</label>
+        <textarea
+          name="description"
+          id="description"
+          onChange={handleChange}
+          value={formData.description}
+        ></textarea>
+        <EchoMakerTagsInput
+          formData={formData}
+          setFormData={setFormData}
+          handleChange={handleChange}
+        />
+        <label htmlFor="anonymous">
+          <input
+            type="checkbox"
+            name="anonymous"
+            onChange={handleChange}
+            checked={formData.anonymous}
+          />
+          Post anonymously
+        </label>
+        <label htmlFor="geolocation">
+          <input
+            type="checkbox"
+            name="geolocation"
+            onChange={handleChange}
+            value={formData.geolocation}
+            checked={formData.geolocation}
+          />
+          Pin on my location
+        </label>
+        <label htmlFor="unlock_datetime">Unlock Time:</label>
+        <input
+          type="datetime-local"
+          name="unlock_datetime"
+          onChange={handleChange}
+          value={formData.unlock_datetime}
+        />
+        <EchoMakerTypeInput
+          formData={formData}
+          setFormData={setFormData}
+          handleChange={handleChange}
+        />
+        {Object.values(errors).map((error, index) => (
+          <p key={error + index}>{error}</p>
+        ))}
+        <button type="submit">Create Echo</button>
+      </form>
+      <EchoMakerGeolocationDisplay
         formData={formData}
         setFormData={setFormData}
-        handleChange={handleChange}
       />
-      <label htmlFor="anonymous">
-        <input
-          type="checkbox"
-          name="anonymous"
-          onChange={handleChange}
-          checked={formData.anonymous}
-        />
-        Post anonymously
-      </label>
-      <label htmlFor="geolocation">
-        <input
-          type="checkbox"
-          name="geolocation"
-          onChange={handleChange}
-          value={formData.geolocation}
-          checked={formData.geolocation}
-        />
-        Pin on my location
-      </label>
-      {formData.geolocation && (
-        <p>
-          Latitude: {formData.geolocation.latitude}, Longitude:{" "}
-          {formData.geolocation.longitude}
-        </p>
-      )}
-      <label htmlFor="unlock_datetime">Unlock Time:</label>
-      <input
-        type="datetime-local"
-        name="unlock_datetime"
-        onChange={handleChange}
-        value={formData.unlock_datetime}
-      />
-      <EchoMakerTypeInput
-        formData={formData}
-        setFormData={setFormData}
-        handleChange={handleChange}
-      />
-      {Object.values(errors).map((error, index) => (
-        <p key={error + index}>{error}</p>
-      ))}
-      <button type="submit">Create Echo</button>
-    </form>
+    </div>
   );
 }

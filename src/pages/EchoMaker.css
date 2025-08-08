@@ -25,3 +25,37 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+.echo-maker-container {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    justify-content: space-around;
+}
+
+.map-container {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    height: 500px;
+}
+
+.overlay {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(245, 245, 245, 0.5);
+    z-index: 1000;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.map-container:hover .overlay {
+    display: none;
+}
