@@ -10,6 +10,11 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import GeoTest from "./pages/Geotest";
+import DashboardPage from "./pages/DashboardPage";
+import UserProfile from "./pages/UserProfile";
+
+
 import Report from "./pages/Report";
 
 const App = () => {
@@ -59,6 +64,10 @@ const App = () => {
           <Route path="/report/:id" element={<Report />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/geo-test" element={<GeoTest />} />
+          <Route path="/inbox" element={<DashboardPage />} /> 
+
+          
         </Routes>
       </div>
     </div>
