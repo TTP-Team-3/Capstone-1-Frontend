@@ -43,7 +43,10 @@ export default function EchoMaker({ user }) {
     if (formData.recipient_type === "") {
       errors["recipient_type"] = "Please choose a recipient type!";
     }
-    if (formData.recipient_type === "friends" && formData.friendIds.length === 0) {
+    if (
+      formData.recipient_type === "friends" &&
+      formData.friendIds.length === 0
+    ) {
       errors["friendIds"] = "Please include friends to share with.";
     }
     if (formData.unlock_datetime === "") {
@@ -98,6 +101,7 @@ export default function EchoMaker({ user }) {
       formDataToSend.friendIds = [];
     }
 
+    console.log(formData);
     console.log(formDataToSend);
     // await axios.post(
     //   `${API_URL}/aws/s3/`,
