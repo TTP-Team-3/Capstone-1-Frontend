@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function EchoMakerTypeInput({
+export default function EchoMakerRecipientTypeInput({
   formData,
   setFormData,
   handleChange,
@@ -23,15 +23,15 @@ export default function EchoMakerTypeInput({
   }
   return (
     <>
-      <label htmlFor="type">Type:</label>
+      <label htmlFor="recipient_type">Recipient Type:</label>
       <div>
-        <select name="type" value={formData.type} onChange={handleChange}>
+        <select name="recipient_type" value={formData.recipient_type} onChange={handleChange}>
           <option value="">--Choose Type--</option>
           <option value="public">Public</option>
           <option value="friends">Friends</option>
-          <option value="private">Private</option>
+          <option value="self">Self</option>
         </select>
-        {formData.type === "friends" && (
+        {formData.recipient_type === "friends" && (
           <>
             <select name="friendIds" onChange={handleChange}>
               {MOCK_USERS.map((user) => (

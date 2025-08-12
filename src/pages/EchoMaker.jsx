@@ -2,20 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EchoMaker.css";
 import EchoMakerTagsInput from "../components/EchoMakerTagsInput";
-import EchoMakerTypeInput from "../components/EchoMakerTypeInput";
+import EchoMakerRecipientTypeInput from "../components/EchoMakerRecipientTypeInput";
 import EchoMakerGeolocationDisplay from "../components/EchoMakerGeolocationDisplay";
+import axios from "axios";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
-    echoName: "",
+    echo_name: "",
     media: [],
-    description: "",
+    text: "",
     tags: [],
-    anonymous: false,
+    show_sender_name: true,
     unlock_datetime: "",
-    type: "",
+    recipient_type: "",
     friendIds: [],
-    geolocation: "",
+    location_locked: false,
+    lat: 0,
+    lng: 0,
   });
   console.log(formData);
   const [errors, setErrors] = useState({});
@@ -28,16 +31,19 @@ export default function EchoMaker({ user }) {
 
   function checkForErrors() {
     const errors = {};
-    if (!formData.echoName) {
-      errors["echoName"] = "Please give your echo a name!";
+    if (!formData.echo_name) {
+      errors["echo_name"] = "Please give your echo a name!";
+    }
+    if (!formData.text) {
+      errors["text"] = "Please give your echo a description!";
     }
     if (!formData.tags.length) {
       errors["tags"] = "Atleast 1 tag is required!";
     }
-    if (formData.type === "") {
-      errors["type"] = "Please choose a type!";
+    if (formData.recipient_type === "") {
+      errors["recipient_type"] = "Please choose a recipient type!";
     }
-    if (formData.type === "friends" && formData.friendIds.length === 0) {
+    if (formData.recipient_type === "friends" && formData.friendIds.length === 0) {
       errors["friendIds"] = "Please include friends to share with.";
     }
     if (formData.unlock_datetime === "") {
@@ -46,46 +52,94 @@ export default function EchoMaker({ user }) {
     return errors;
   }
 
-  function createEcho(event) {
+  async function createEcho(event) {
     event.preventDefault();
     if (Object.keys(checkForErrors()).length !== 0) {
       return setErrors(checkForErrors());
     }
 
-    const formDataToSend = formData;
+    const formDataToSend = new FormData();
+    formDataToSend.append("is_archived", false);
+    formDataToSend.append("is_unlocked", false);
+    formDataToSend.append("is_saved", false);
+
+    if (formData.media && formData.media.length > 0) {
+      formData.media.forEach((file) => {
+        formDataToSend.append("media", file);
+      });
+    }
+
+    if (formData.tags && formData.tags.length > 0) {
+      formData.tags.forEach((tag) => {
+        formDataToSend.append("tags", tag);
+      });
+    }
+
+    if (formData.friendIds.length > 0) {
+      formData.friendIds.forEach((friendId) => {
+        formDataToSend.append("friendIds", friendId);
+      });
+    }
+
+    const otherKeys = Object.keys(formData).filter(
+      (key) => key !== "media" && key !== "tags" && key !== "friendIds",
+    );
+    otherKeys.forEach((key) => {
+      if (formData[key] !== "" && formData[key] != null) {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
+
     if (
-      formDataToSend.type !== "Friends" &&
+      formDataToSend.recipient_type !== "Friends" &&
+      formDataToSend.friendIds &&
       formDataToSend.friendIds.length > 0
     ) {
       formDataToSend.friendIds = [];
     }
 
     console.log(formDataToSend);
+    // await axios.post(
+    //   `${API_URL}/aws/s3/`,
+    //   formDataToSend,
+    //   {
+    //     headers: { "Content-Type": "multipart/form-data" },
+    //   },
+    //   { withCredentials: true },
+    // );
   }
 
   function handleChange(event) {
     const { checked, name, value } = event.target;
     setErrors({});
-    if (name === "anonymous") {
+    if (name === "show_sender_name") {
       setFormData({
         ...formData,
-        [name]: !formData.anonymous,
+        [name]: !formData.show_sender_name,
       });
-    } else if (name === "tags" || name === "media") {
-      const temp = formData[name];
+    } else if (name === "media") {
+      const files = event.target.files[0];
+      const temp = [...formData.media];
+      temp.push(files);
+      setFormData({
+        ...formData,
+        [name]: temp,
+      });
+    } else if (name === "tags") {
+      const temp = [...formData[name]];
       temp.push(value);
       setFormData({
         ...formData,
         [name]: temp,
       });
     } else if (name === "friendIds") {
-      const temp = formData.friendIds;
+      const temp = [...formData.friendIds];
       temp.push(Number(value));
       setFormData({
         ...formData,
         [name]: temp,
       });
-    } else if (name === "geolocation") {
+    } else if (name === "location_locked") {
       if (checked) {
         const options = {
           enableHighAccuracy: true,
@@ -95,10 +149,9 @@ export default function EchoMaker({ user }) {
         function success(position) {
           setFormData({
             ...formData,
-            [name]: {
-              longitude: position.coords.longitude,
-              latitude: position.coords.latitude,
-            },
+            [name]: true,
+            lng: position.coords.longitude,
+            lat: position.coords.latitude,
           });
         }
         function error(error) {
@@ -108,7 +161,9 @@ export default function EchoMaker({ user }) {
       } else {
         setFormData({
           ...formData,
-          [name]: "",
+          [name]: false,
+          lng: 0,
+          lat: 0,
         });
       }
     } else {
@@ -122,43 +177,42 @@ export default function EchoMaker({ user }) {
   return (
     <div className="echo-maker-container">
       <form className="create-echo-form" onSubmit={createEcho}>
-        <label htmlFor="echoName">Echo Name:</label>
+        <label htmlFor="echo_name">Echo Name:</label>
         <input
           type="text"
-          name="echoName"
-          value={formData.echoName}
+          name="echo_name"
+          value={formData.echo_name}
           onChange={handleChange}
         />
         <label htmlFor="media">Select Media: </label>
         <input type="file" name="media" onChange={handleChange} multiple />
-        <label htmlFor="description">Description:</label>
+        <label htmlFor="text">Description:</label>
         <textarea
-          name="description"
-          id="description"
+          name="text"
+          id="text"
           onChange={handleChange}
-          value={formData.description}
+          value={formData.text}
         ></textarea>
         <EchoMakerTagsInput
           formData={formData}
           setFormData={setFormData}
           handleChange={handleChange}
         />
-        <label htmlFor="anonymous">
+        <label htmlFor="show_sender_name">
           <input
             type="checkbox"
-            name="anonymous"
+            name="show_sender_name"
             onChange={handleChange}
-            checked={formData.anonymous}
+            checked={formData.show_sender_name}
           />
-          Post anonymously
+          Show name
         </label>
-        <label htmlFor="geolocation">
+        <label htmlFor="location_locked">
           <input
             type="checkbox"
-            name="geolocation"
+            name="location_locked"
             onChange={handleChange}
-            value={formData.geolocation}
-            checked={formData.geolocation}
+            checked={formData.location_locked}
           />
           Pin on my location
         </label>
@@ -169,7 +223,7 @@ export default function EchoMaker({ user }) {
           onChange={handleChange}
           value={formData.unlock_datetime}
         />
-        <EchoMakerTypeInput
+        <EchoMakerRecipientTypeInput
           formData={formData}
           setFormData={setFormData}
           handleChange={handleChange}

@@ -11,10 +11,8 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
         if (marker != null) {
           setFormData({
             ...formData,
-            geolocation: {
-              latitude: marker.getLatLng().lat,
-              longitude: marker.getLatLng().lng,
-            },
+            lat: marker.getLatLng().lat,
+            lng: marker.getLatLng().lng,
           });
         }
       },
@@ -25,14 +23,13 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
     setDraggable((d) => !d);
   }, []);
 
-  return formData.geolocation ? (
+  return formData.lat && formData.lng ? (
     <div className="map-container">
       <p>
-        Latitude: {formData.geolocation.latitude}, Longitude:{" "}
-        {formData.geolocation.longitude}
+        Latitude: {formData.lat}, Longitude: {formData.lng}
       </p>
       <MapContainer
-        center={[formData.geolocation.latitude, formData.geolocation.longitude]}
+        center={[formData.lat, formData.lng]}
         zoom={15}
         style={{ width: "90%", height: "90%" }}
       >
@@ -44,10 +41,7 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
         <Marker
           draggable={draggable}
           eventHandlers={eventHandlers}
-          position={[
-            formData.geolocation.latitude,
-            formData.geolocation.longitude,
-          ]}
+          position={[formData.lat, formData.lng]}
           ref={markerRef}
         >
           <Popup>
