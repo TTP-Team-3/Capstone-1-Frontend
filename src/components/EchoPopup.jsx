@@ -11,7 +11,7 @@ const EchoPopup = ({ echo, onClose }) => {
         <h2 className="popup-title">Unlocked Echo</h2>
         <p className="popup-text">{echo.text}</p>
         <p className="popup-sender">
-          From: {echo.show_sender_name ? `User ${echo.sender_id}` : "Anonymous"}
+          From: {echo.show_sender_name ? `User ${echo.user_id}` : "Anonymous"}
         </p>
         <button className="popup-close" onClick={onClose}>Close</button>
       </div>

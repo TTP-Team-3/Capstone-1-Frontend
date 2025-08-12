@@ -48,9 +48,11 @@ const EchoCard = ({ echo, onClick, onUnlock }) => {
       {/* Sender + Type */}
       <div className="echo-header">
         {echo.show_sender_name && (
-          <span className="echo-sender">From: User {echo.sender_id}</span>
+          <span className="echo-sender">From: User {echo.user_id}</span>
         )}
-        <span className={`echo-type ${echo.type}`}>{echo.type.toUpperCase()}</span>
+        <span className={`echo-type ${echo.recipient_type}`}>
+          {echo.recipient_type?.toUpperCase() || "PUBLIC"}
+        </span>
       </div>
 
       {/* Display Text or Lock Message */}
@@ -77,9 +79,11 @@ const EchoCard = ({ echo, onClick, onUnlock }) => {
 
       {/* Unlock Date + Status */}
       <div className="echo-meta">
-        <span className="echo-unlock">
-          Unlocks: {new Date(echo.unlock_datetime).toLocaleString()}
-        </span>
+        {echo.unlock_datetime && (
+          <span className="echo-unlock">
+            Unlocks: {new Date(echo.unlock_datetime).toLocaleString()}
+          </span>
+        )}
         <span className={`echo-status ${echo.is_unlocked ? "unlocked" : "locked"}`}>
           {echo.is_unlocked ? "Unlocked" : "Locked"}
         </span>

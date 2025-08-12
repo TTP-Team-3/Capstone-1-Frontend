@@ -1,89 +1,111 @@
-import React, { useState } from "react";
+// DashboardPage.jsx
+import React, { useEffect, useState } from "react";
 import EchoList from "../components/EchoList";
 import EchoPopup from "../components/EchoPopup"; 
 import EchoMapPreview from "../components/EchoMapPreview";
-import mockEchoData from "../utils/mockEchoData";
+// import mockEchoData from "../utils/mockEchoData";
 import "./DashboardStyles.css";
+import { API_URL } from "../shared"; 
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState("Inbox");
-  const [echoes, setEchoes] = useState(mockEchoData);
-  const [popupEcho, setPopupEcho] = useState(null); 
+  const [echoes, setEchoes] = useState([]);
+  const [popupEcho, setPopupEcho] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // When a user clicks on an echo card
+  // Load echoes for the current tab from the backend
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_URL}/api/echoes?tab=${encodeURIComponent(activeTab)}`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!cancelled) setEchoes(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch echoes:", err);
+        if (!cancelled) setError("Could not load echoes.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => { cancelled = true; };
+  }, [activeTab]);
+
   const handleEchoClick = (id) => {
     console.log("View echo:", id);
-    // Future enhancement: navigate to single echo view or open full modal
   };
 
-  // Unlock echo by ID and show popup
-  const handleUnlock = (id) => {
-    console.log("Unlock echo:", id);
+  const handleUnlock = async (id) => {
+    try {
+      // optimistic update
+      setEchoes(prev => prev.map(e => e.id === id ? { ...e, is_unlocked: true } : e));
 
-    // Update unlocked state in echo list
-    setEchoes((prev) =>
-      prev.map((echo) =>
-        echo.id === id ? { ...echo, is_unlocked: true } : echo
-      )
-    );
+      const res = await fetch(`${API_URL}/api/echoes/${id}/unlock`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const updated = await res.json();
 
-    // Find the unlocked echo to show in popup
-    const unlocked = echoes.find((echo) => echo.id === id);
-    if (unlocked) {
-      setPopupEcho({ ...unlocked, is_unlocked: true });
+      setEchoes(prev => prev.map(e => e.id === id ? updated : e));
+      setPopupEcho(updated);
+    } catch (err) {
+      console.error("Unlock failed:", err);
+      setEchoes(prev => prev.map(e => e.id === id ? { ...e, is_unlocked: false } : e));
+      alert("Failed to unlock. Please try again.");
     }
   };
 
-  // Filter echoes by tab
-  const filteredEchoes = echoes.filter((echo) => {
-    if (activeTab === "Inbox") return !echo.is_unlocked;
-    if (activeTab === "History") return echo.is_unlocked;
-    if (activeTab === "Saved") return echo.is_saved; // Placeholder logic
-    return true;
-  });
+  const filteredEchoes = echoes;
 
   return (
     <div className="dashboard-container">
       {/* Left Panel: Echo List */}
       <div className="dashboard-left">
         <div className="tab-header">
-          <button
-            className={`tab ${activeTab === "Inbox" ? "active" : ""}`}
-            onClick={() => setActiveTab("Inbox")}
-          >
-            Inbox
-          </button>
-          <button
-            className={`tab ${activeTab === "History" ? "active" : ""}`}
-            onClick={() => setActiveTab("History")}
-          >
-            History
-          </button>
-          <button
-            className={`tab ${activeTab === "Saved" ? "active" : ""}`}
-            onClick={() => setActiveTab("Saved")}
-          >
-            Saved
-          </button>
+          <button className={`tab ${activeTab === "Inbox" ? "active" : ""}`} onClick={() => setActiveTab("Inbox")}>Inbox</button>
+          <button className={`tab ${activeTab === "History" ? "active" : ""}`} onClick={() => setActiveTab("History")}>History</button>
+          <button className={`tab ${activeTab === "Saved" ? "active" : ""}`} onClick={() => setActiveTab("Saved")}>Saved</button>
         </div>
 
         <div className="tab-content">
-          <EchoList
-            echoes={filteredEchoes}
-            onEchoClick={handleEchoClick}
-            onUnlock={handleUnlock}
-          />
+          {loading && <p>Loading echoes…</p>}
+          {error && <p className="error">{error}</p>}
+          {!loading && !error && (
+            <EchoList
+              echoes={filteredEchoes}
+              onEchoClick={handleEchoClick}
+              onUnlock={handleUnlock}
+            />
+          )}
         </div>
       </div>
 
       {/* Right Panel: Map Preview */}
-        <div className="dashboard-right">
+      <div className="dashboard-right">
+        <button
+          className="map-close-btn"
+          onClick={() => window.location.href = "/"} // or use navigate("/")
+          aria-label="Close and return to homepage"
+        >
+          ✕
+        </button>
         <EchoMapPreview
-            echoes={filteredEchoes}
-            focusedEcho={popupEcho}
+          echoes={filteredEchoes}
+          activeEchoId={popupEcho?.id}
         />
-        </div>
-
+      </div>
 
       {/* 🔓 Unlock Popup */}
       {popupEcho && (

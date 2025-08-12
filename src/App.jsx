@@ -12,7 +12,7 @@ import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import GeoTest from "./pages/Geotest";
 import DashboardPage from "./pages/DashboardPage";
-import UserProfile from "./pages/UserProfile";
+// import UserProfile from "./pages/UserProfile";
 
 
 import Report from "./pages/Report";

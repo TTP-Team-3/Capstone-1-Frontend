@@ -54,8 +54,10 @@ const EchoMapPreview = ({ echoes, activeEchoId }) => {
     }
   }, []);
 
-  // Default map center
-  const defaultCenter = userLocation || [40.7128, -74.006]; // NYC fallback
+  // Default map center (Leaflet expects an array, not an object)
+  const defaultCenter = userLocation
+    ? [userLocation.lat, userLocation.lng]
+    : [40.7128, -74.006]; // NYC fallback
 
   return (
     <MapContainer center={defaultCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
@@ -79,7 +81,7 @@ const EchoMapPreview = ({ echoes, activeEchoId }) => {
             <Popup>
               {echo.is_unlocked ? echo.text : "🔒 Locked Echo"}
               <br />
-              {echo.show_sender_name ? `From User ${echo.sender_id}` : "Anonymous"}
+              {echo.show_sender_name ? `From User ${echo.user_id}` : "Anonymous"}
             </Popup>
           </Marker>
         ))}
