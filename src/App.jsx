@@ -11,6 +11,8 @@ import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import Report from "./pages/Report";
+import SearchUser from "./pages/SearchUser";
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -59,6 +61,7 @@ const App = () => {
           <Route path="/report/:id" element={<Report />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/searchuser" element={<SearchUser />} />
         </Routes>
       </div>
     </div>

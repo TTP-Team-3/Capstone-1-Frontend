@@ -19,6 +19,9 @@ const Profile = () => {
     img: "",
     bio: "",
   });
+  const loggedInUserId = localStorage.getItem("userId");
+  const [friendStatus, setFriendStatus] = useState(null);
+  const [friendshipId, setFriendshipId] = useState(null);
 
   const dummyFriends = [
     //dummy data for friends
@@ -41,7 +44,7 @@ const Profile = () => {
           withCredentials: true,
         });
         setUser(response.data);
-        
+
         try {
           // const fetchFriends = await axios.get(`${API_URL}/api/users/${userId}/friends`, {
           const friendsResponse = await axios.get(
@@ -54,7 +57,6 @@ const Profile = () => {
         } catch {
           console.warn("Could not fetch real friends; using dummyFriends.");
         }
-
       } catch (err) {
         if (err.response?.status === 404) {
           setError("User not found.");
@@ -81,6 +83,54 @@ const Profile = () => {
     }
   }, [user]);
 
+
+
+  useEffect(() => {
+    if (userId !== loggedInUserId) {
+      axios.get(`${API_URL}/api/friends`, { withCredentials: true })
+        .then(res => {
+          const friendship = res.data.find(
+            f =>
+            (f.user_id == parseInt(loggedInUserId) && f.friend_id === parseInt(userId)) ||
+            (f.friend_id == parseInt(loggedInUserId) && f.user_id === parseInt(userId))
+          );
+          if (friendship) {
+            setFriendStatus(friendship.status);
+            setFriendshipId(friendship.id);
+          }
+        })
+        .catch (err => console.error("Error fetching friends:", err));
+    }
+  }, [userId, loggedInUserId]);
+
+  const handleAddFriend = async () => {
+    try {
+      console.log("before request");
+      const res = await axios.post(
+        `${API_URL}/api/friends`,
+        {friend_id:parseInt(userId)},
+        {withCredentials: true}
+      );
+      console.log("after request");
+      setFriendStatus("pending");
+      setFriendshipId(res.data.id);
+    } catch (err) {
+      console.error("Error adding friend: ", err);
+    }
+  };
+
+  const handleRemoveFriend = async () => {
+    try {
+      if (!friendshipId) return;
+      await axios.delete(`${API_URL}/api/friends/${friendshipId}`,{withCredentials:true});
+      setFriendStatus(null);
+      setFriendshipId(null);
+    } catch (err) {
+      console.error("Error removing friend: ", err);
+    }
+  };
+
+
   if (error) {
     return <div className="error">{error}</div>;
   }
@@ -89,6 +139,8 @@ const Profile = () => {
     // User data hasn't loaded yet
     return <div>Loading user profile...</div>;
   }
+
+  
 
   const handleChange = (e) => {
     setFormData({
@@ -113,21 +165,6 @@ const Profile = () => {
     } catch (error) {
       console.error("Failed to update profile:", error);
       setError("Failed to update profile. Please try again.");
-    }
-  };
-
-  const loggedInUserId = localStorage.getItem("userId");
-  const handleAddFriend = async () => {
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/users/${loggedInUserId}/friends`,
-        { friendId: user._id},
-        { withCredentials: true}
-      );
-      alert("Friend added!");
-    } catch (error) {
-      console.error("Failed to add friend: ", error);
-      alert("Could not add as friend.");
     }
   };
 
@@ -203,16 +240,25 @@ const Profile = () => {
               {user.firstName} {user.lastName}
             </h2>
 
-            <button onClick={() => 
-              setShowFriends(!showFriends)} 
+            <button
+              onClick={() => setShowFriends(!showFriends)}
               className="friends-toggle-button"
             >
               {showFriends ? "Hide Friends" : "Friends:"} ({friends.length})
             </button>
 
-            <button onClick={handleAddFriend} classNamr="add-friend-button">
-              Add Friend
-            </button>
+            {/* <button className="add-friend-button"> */}
+            {parseInt(userId) !== parseInt(loggedInUserId) && (
+              <button
+                className="add-friend-button"
+                onClick={handleAddFriend}
+              >
+                {friendStatus === "friends" ? "Unfriend" :
+                 friendStatus === "pending" ? "Request Sent" :
+                "Add Friend"}
+              </button>
+            )}
+            {/* </button> */}
 
             <p>
               <strong>Bio:</strong> {user.bio}
@@ -228,7 +274,8 @@ const Profile = () => {
               Edit
             </button>
           </div>
-            
+
+          {/* Friend list container is here!*/}
           {showFriends && (
             <div className="friends-list">
               <h3>Friends ({friends.length}) </h3>
@@ -237,16 +284,16 @@ const Profile = () => {
               ) : (
                 <p>
                   {friends.map((friend) => (
-                    <li key={friend.id}>
-                      <Link to={`/profile/${friend.id}`}>{friend.username}</Link>
+                    <li key={user.id}>
+                      <Link to={`/profile/${friend.id}`}>
+                        {friend.username}
+                      </Link>
                     </li>
                   ))}
                 </p>
               )}
             </div>
           )}
-
-
         </div>
       )}
     </div>
