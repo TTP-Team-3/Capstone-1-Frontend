@@ -5,6 +5,7 @@ import EchoMakerTagsInput from "../components/EchoMakerTagsInput";
 import EchoMakerRecipientTypeInput from "../components/EchoMakerRecipientTypeInput";
 import EchoMakerGeolocationDisplay from "../components/EchoMakerGeolocationDisplay";
 import axios from "axios";
+import { API_URL } from "../shared";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
@@ -20,7 +21,6 @@ export default function EchoMaker({ user }) {
     lat: 0,
     lng: 0,
   });
-  console.log(formData);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   // useEffect(() => {
@@ -52,6 +52,11 @@ export default function EchoMaker({ user }) {
     if (formData.unlock_datetime === "") {
       errors["unlock_datetime"] = "Please enter an unlock date and time!";
     }
+    const now = new Date();
+    const unlock_datetime = new Date(formData.unlock_datetime);
+    if (unlock_datetime <= now) {
+      errors["unlock_datetime"] = "Unlock date and time must be in the future!";
+    }
     return errors;
   }
 
@@ -62,10 +67,6 @@ export default function EchoMaker({ user }) {
     }
 
     const formDataToSend = new FormData();
-    formDataToSend.append("is_archived", false);
-    formDataToSend.append("is_unlocked", false);
-    formDataToSend.append("is_saved", false);
-
     if (formData.media && formData.media.length > 0) {
       formData.media.forEach((file) => {
         formDataToSend.append("media", file);
@@ -101,16 +102,10 @@ export default function EchoMaker({ user }) {
       formDataToSend.friendIds = [];
     }
 
-    console.log(formData);
-    console.log(formDataToSend);
-    // await axios.post(
-    //   `${API_URL}/aws/s3/`,
-    //   formDataToSend,
-    //   {
-    //     headers: { "Content-Type": "multipart/form-data" },
-    //   },
-    //   { withCredentials: true },
-    // );
+    await axios.post(`${API_URL}/api/echoes/`, formDataToSend, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
   }
 
   function handleChange(event) {
