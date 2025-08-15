@@ -7,7 +7,6 @@ import NavBar from "../components/NavBar";
 
 const Profile = () => {
   const { userId } = useParams();
-  // const {id} = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -46,7 +45,6 @@ const Profile = () => {
         setUser(response.data);
 
         try {
-          // const fetchFriends = await axios.get(`${API_URL}/api/users/${userId}/friends`, {
           const friendsResponse = await axios.get(
             `${API_URL}/api/users/${userId}/friends`,
             {
@@ -247,7 +245,6 @@ const Profile = () => {
               {showFriends ? "Hide Friends" : "Friends:"} ({friends.length})
             </button>
 
-            {/* <button className="add-friend-button"> */}
             {parseInt(userId) !== parseInt(loggedInUserId) && (
               <button
                 className="add-friend-button"
@@ -258,7 +255,6 @@ const Profile = () => {
                 "Add Friend"}
               </button>
             )}
-            {/* </button> */}
 
             <p>
               <strong>Bio:</strong> {user.bio}
