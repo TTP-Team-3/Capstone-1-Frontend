@@ -10,9 +10,10 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import GeoTest from "./pages/Geotest";
+import DashboardPage from "./pages/DashboardPage";
 import EchoMaker from "./pages/EchoMaker";
 import Report from "./pages/Report";
-
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -61,6 +62,8 @@ const App = () => {
           <Route path="/echo-maker" element={<EchoMaker user={user} />} />
           <Route path="/report/:id" element={<Report />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/geo-test" element={<GeoTest />} />
+          <Route path="/inbox" element={<DashboardPage />} /> 
           <Route path="/profile/:userId" element={<Profile />} />
         </Routes>
       </div>
