@@ -1,27 +1,107 @@
+/* Base FAB (keep your existing .fab positions) */
 .fab {
   position: absolute;
   width: 78px;
   height: 78px;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: #1976d2;
   color: white;
   font-size: 1.5rem;
   border: none;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.25);
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 1000;
 }
 
-.bottom-right {
-  bottom: 1rem;
-  right: 1rem;
+/* Hamburger icon bars */
+.fab-bars,
+.fab-bars::before,
+.fab-bars::after {
+  content: "";
+  width: 28px;
+  height: 3px;
+  background: #fff;
+  display: block;
+  border-radius: 2px;
+  position: relative;
+}
+.fab-bars::before { top: -8px; position: relative; }
+.fab-bars::after  { top:  5px; position: relative; }
+
+.bottom-left { bottom: 1rem; left: 1rem; }
+.bottom-right { bottom: 1rem; right: 1rem; }
+.top-right { top: 1rem; right: 1rem; }
+
+/* Mini FABs */
+.fab-mini {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.20);
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transform: translate(0, 0) scale(0.5);  /* collapsed on main */
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms ease, opacity 180ms ease;
+  z-index: 999;
 }
 
-.bottom-left {
-  bottom: 1rem;
-  left: 1rem;
-}
+/* anchor all mini fabs on main bottom-left position */
+.fab-above, .fab-right, .fab-diag { bottom: 1rem; left: 1rem; }
 
-.top-right {
-  top: 1rem;
-  right: 1rem;
+/* stage 1 open positions */
+.fab-above.open { transform: translateY(-84px) scale(1); opacity: 1; pointer-events: auto; }
+.fab-right.open { transform: translateX(84px)  scale(1); opacity: 1; pointer-events: auto; }
+
+/* stage 2 extra button (diagonal up-right) */
+.fab-diag.open  { transform: translate(66px, -66px) scale(1); opacity: 1; pointer-events: auto; }
+
+.fab-mini:hover { background: #f4f8ff; }
+.fab-main:active { transform: scale(0.98); }
+.fab-mini.open { box-shadow: 0 12px 22px rgba(0,0,0,0.22); }
+/* map sizing */
+.loggedin-home-container,
+.home-map { height: 100%; width: 100%; }
+
+/* slide-in Nearby panel */
+.nearby-panel {
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  width: 320px;
+  max-width: 85vw;
+  background: #fff;
+  border-left: 1px solid #dee2e6;
+  box-shadow: -6px 0 18px rgba(0,0,0,0.12);
+  transform: translateX(100%);
+  transition: transform 200ms ease;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
 }
+.nearby-panel.open { transform: translateX(0); }
+
+.nearby-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border-bottom: 1px solid #e9ecef;
+}
+.nearby-controls { display: flex; align-items: center; gap: 8px; }
+.nearby-controls select { margin-left: 6px; padding: 4px 6px; }
+.nearby-close { background: #f1f3f5; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+.nearby-close:hover { background: #e9ecef; }
+
+.nearby-msg { padding: 12px; color: #444; }
+.nearby-msg.error { color: #b00020; }
+
+.nearby-list { padding: 12px; overflow: auto; flex: 1; }
+
+.radius-fixed { font-size: 0.9rem; color: #555; }

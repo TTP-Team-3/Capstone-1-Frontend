@@ -5,105 +5,88 @@ const EchoCard = ({ echo, onClick, onUnlock }) => {
   const [canUnlock, setCanUnlock] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
 
-  // Calculate time remaining until unlock
+  // countdown to unlock time
   useEffect(() => {
-    if (!echo.unlock_datetime) return;
+    if (!echo?.unlock_datetime) return;
 
-    const updateCountdown = () => {
+    const update = () => {
       const now = new Date();
-      const unlockTime = new Date(echo.unlock_datetime);
-      const diff = unlockTime - now;
+      const unlockAt = new Date(echo.unlock_datetime);
+      const diff = unlockAt.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setCanUnlock(true); // Unlock time reached
-        setTimeLeft(null);  // Stop countdown
+        setCanUnlock(true);
+        setTimeLeft(null);
       } else {
-        setCanUnlock(false); // Still locked
-        setTimeLeft(diff);   // Save time left in ms
+        setCanUnlock(false);
+        setTimeLeft(diff);
       }
     };
 
-    updateCountdown(); // Initial check
-    const timer = setInterval(updateCountdown, 1000); // Check every second
-    return () => clearInterval(timer); // Clean up on unmount
-  }, [echo.unlock_datetime]);
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [echo?.unlock_datetime]);
 
-  // Convert ms to readable format (e.g., 1d 2h 3m)
   const formatCountdown = (ms) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const mins = totalSeconds % 60;
-    const hrs = Math.floor((totalSeconds / 60) % 60);
-    const days = Math.floor(totalSeconds / (60 * 60 * 24));
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const mins = total % 60;
+    const hrs = Math.floor((total / 60) % 60);
+    const days = Math.floor(total / (60 * 60 * 24));
     return `${days}d ${hrs}h ${mins}m`;
   };
 
-  // Handle click on Unlock button
+  const sender =
+    echo?.show_sender_name
+      ? echo?.sender_username || `User ${echo?.user_id}`
+      : "Anonymous";
+
   const handleUnlock = (e) => {
-    e.stopPropagation(); // Don't trigger onClick for the card
-    onUnlock?.(echo.id); // Call parent unlock handler
+    e.stopPropagation();
+    onUnlock?.(echo.id);
   };
+
+  const clientUnlocked = echo?.client_unlocked === true;
 
   return (
     <div className="echo-card" onClick={() => onClick?.(echo.id)}>
-      {/* Sender + Type */}
-      <div className="echo-header">
-        {echo.show_sender_name && (
-          <span className="echo-sender">From: User {echo.sender_id}</span>
-        )}
-        <span className={`echo-type ${echo.type}`}>{echo.type.toUpperCase()}</span>
+      {/* Title */}
+      <h4 className="echo-title">{echo?.echo_name || "Unnamed Echo"}</h4>
+
+      {/* Recipient type */}
+      <div className="echo-type">
+        {echo?.recipient_type || "unknown"}
       </div>
 
-      {/* Display Text or Lock Message */}
-      <p className="echo-text">
-        {echo.is_unlocked ? echo.text : "🔒 Locked — unlock to reveal."}
-      </p>
+      {/* From */}
+      <div className="echo-from">from {sender}</div>
 
-      {/* Unlock Button or Countdown */}
-      {!echo.is_unlocked && (
+      {/* Unlock datetime */}
+      {echo?.unlock_datetime && (
+        <div className="echo-unlock-line">
+          Unlocks: {new Date(echo.unlock_datetime).toLocaleString()}
+        </div>
+      )}
+
+      {/* Action: countdown OR unlock button */}
+      {!clientUnlocked && (
         <>
           {canUnlock ? (
             <button className="unlock-btn" onClick={handleUnlock}>
               Unlock
             </button>
           ) : (
-            timeLeft && (
-              <p className="echo-countdown">
+            timeLeft != null && (
+              <div className="echo-countdown">
                 Unlocks in: {formatCountdown(timeLeft)}
-              </p>
+              </div>
             )
           )}
         </>
       )}
 
-      {/* Unlock Date + Status */}
-      <div className="echo-meta">
-        <span className="echo-unlock">
-          Unlocks: {new Date(echo.unlock_datetime).toLocaleString()}
-        </span>
-        <span className={`echo-status ${echo.is_unlocked ? "unlocked" : "locked"}`}>
-          {echo.is_unlocked ? "Unlocked" : "Locked"}
-        </span>
-      </div>
-
-      {/* Tags */}
-      {echo.tags?.length > 0 && (
-        <div className="echo-tags">
-          {echo.tags.map((tag, idx) => (
-            <span key={idx} className="tag">#{tag}</span>
-          ))}
-        </div>
-      )}
-
-      {/* Reactions */}
-      {echo.reaction_summary && (
-        <div className="echo-reactions">
-          {Object.entries(echo.reaction_summary).map(([type, count]) => (
-            <span key={type} className="reaction">
-              {type} ({count})
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Optional status badge if parent sets client_unlocked after PATCH */}
+      {clientUnlocked && <div className="echo-status unlocked">Unlocked</div>}
     </div>
   );
 };
