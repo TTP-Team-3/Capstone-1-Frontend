@@ -14,6 +14,8 @@ import GeoTest from "./pages/Geotest";
 import DashboardPage from "./pages/DashboardPage";
 import EchoMaker from "./pages/EchoMaker";
 import Report from "./pages/Report";
+import SearchUser from "./pages/SearchUser";
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -65,6 +67,7 @@ const App = () => {
           <Route path="/geo-test" element={<GeoTest />} />
           <Route path="/inbox" element={<DashboardPage />} /> 
           <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/searchuser" element={<SearchUser />} />
           <Route path="/geo-test" element={<GeoTest />} />
           <Route path="/inbox" element={<DashboardPage />} />
         </Routes>
