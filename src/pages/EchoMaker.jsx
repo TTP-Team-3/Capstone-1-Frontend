@@ -16,7 +16,7 @@ export default function EchoMaker({ user }) {
     show_sender_name: true,
     unlock_datetime: "",
     recipient_type: "",
-    userIds: [],
+    customRecipients: [],
     location_locked: false,
     lat: 0,
     lng: 0,
@@ -43,8 +43,11 @@ export default function EchoMaker({ user }) {
     if (formData.recipient_type === "") {
       errors["recipient_type"] = "Please choose a recipient type!";
     }
-    if (formData.recipient_type === "custom" && formData.userIds.length === 0) {
-      errors["userIds"] = "Please include users to share with.";
+    if (
+      formData.recipient_type === "custom" &&
+      formData.customRecipients.length === 0
+    ) {
+      errors["customRecipients"] = "Please include users to share with.";
     }
     if (formData.unlock_datetime === "") {
       errors["unlock_datetime"] = "Please enter an unlock date and time!";
