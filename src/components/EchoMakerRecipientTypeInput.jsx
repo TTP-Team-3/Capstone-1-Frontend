@@ -25,11 +25,16 @@ export default function EchoMakerRecipientTypeInput({
     <>
       <label htmlFor="recipient_type">Recipient Type:</label>
       <div>
-        <select name="recipient_type" value={formData.recipient_type} onChange={handleChange}>
+        <select
+          name="recipient_type"
+          value={formData.recipient_type}
+          onChange={handleChange}
+        >
           <option value="">--Choose Type--</option>
           <option value="public">Public</option>
-          <option value="friends">Friends</option>
+          <option value="friend">Friends</option>
           <option value="self">Self</option>
+          <option value="custom">Custom</option>
         </select>
         {formData.recipient_type === "friends" && (
           <>

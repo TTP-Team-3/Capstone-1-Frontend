@@ -16,7 +16,7 @@ export default function EchoMaker({ user }) {
     show_sender_name: true,
     unlock_datetime: "",
     recipient_type: "",
-    friendIds: [],
+    userIds: [],
     location_locked: false,
     lat: 0,
     lng: 0,
@@ -43,11 +43,8 @@ export default function EchoMaker({ user }) {
     if (formData.recipient_type === "") {
       errors["recipient_type"] = "Please choose a recipient type!";
     }
-    if (
-      formData.recipient_type === "friends" &&
-      formData.friendIds.length === 0
-    ) {
-      errors["friendIds"] = "Please include friends to share with.";
+    if (formData.recipient_type === "custom" && formData.userIds.length === 0) {
+      errors["userIds"] = "Please include users to share with.";
     }
     if (formData.unlock_datetime === "") {
       errors["unlock_datetime"] = "Please enter an unlock date and time!";
@@ -79,14 +76,14 @@ export default function EchoMaker({ user }) {
       });
     }
 
-    if (formData.friendIds.length > 0) {
-      formData.friendIds.forEach((friendId) => {
-        formDataToSend.append("friendIds", friendId);
+    if (formData.userIds.length > 0) {
+      formData.userIds.forEach((userId) => {
+        formDataToSend.append("userIds", userId);
       });
     }
 
     const otherKeys = Object.keys(formData).filter(
-      (key) => key !== "media" && key !== "tags" && key !== "friendIds",
+      (key) => key !== "media" && key !== "tags" && key !== "userIds",
     );
     otherKeys.forEach((key) => {
       if (formData[key] !== "" && formData[key] != null) {
@@ -95,11 +92,11 @@ export default function EchoMaker({ user }) {
     });
 
     if (
-      formDataToSend.recipient_type !== "Friends" &&
-      formDataToSend.friendIds &&
-      formDataToSend.friendIds.length > 0
+      formDataToSend.recipient_type !== "custom" &&
+      formDataToSend.userIds &&
+      formDataToSend.userIds.length > 0
     ) {
-      formDataToSend.friendIds = [];
+      formDataToSend.userIds = [];
     }
 
     await axios.post(`${API_URL}/api/echoes/`, formDataToSend, {
@@ -141,8 +138,8 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
-    } else if (name === "friendIds") {
-      const temp = [...formData.friendIds];
+    } else if (name === "userIds") {
+      const temp = [...formData.userIds];
       temp.push(Number(value));
       setFormData({
         ...formData,
