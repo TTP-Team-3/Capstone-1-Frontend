@@ -117,7 +117,17 @@ export default function EchoMaker({ user }) {
         [name]: !formData.show_sender_name,
       });
     } else if (name === "media") {
+      if (formData.media.length >= 10) {
+        alert("Maximum number of files exceeded");
+        event.target.value = null;
+        return;
+      }
       const files = event.target.files[0];
+      if (files.size > Math.pow(10, 9)) {
+        alert("File size exceeds limit(1GB). File not added");
+        event.target.value = null;
+        return;
+      }
       const temp = [...formData.media];
       temp.push(files);
       setFormData({
