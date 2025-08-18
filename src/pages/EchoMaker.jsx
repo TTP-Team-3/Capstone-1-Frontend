@@ -6,6 +6,7 @@ import EchoMakerRecipientTypeInput from "../components/EchoMakerRecipientTypeInp
 import EchoMakerGeolocationDisplay from "../components/EchoMakerGeolocationDisplay";
 import axios from "axios";
 import { API_URL } from "../shared";
+import EchoMakerFileInput from "../components/EchoMakerFileInput";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
@@ -205,18 +206,6 @@ export default function EchoMaker({ user }) {
     }
   }
 
-  function removeFile(event) {
-    event.preventDefault();
-    const { value } = event.target;
-
-    let currentFiles = formData.media;
-    currentFiles = currentFiles.filter((file) => file.name !== value);
-    setFormData({
-      ...formData,
-      media: currentFiles,
-    });
-  }
-
   return (
     <div className="echo-maker-container">
       <form className="create-echo-form" onSubmit={createEcho}>
@@ -231,31 +220,11 @@ export default function EchoMaker({ user }) {
         <label className="echo-media-label" htmlFor="media">
           Select Media
         </label>
-        <input
-          type="file"
-          className="echo-media-input"
-          name="media"
-          id="media"
-          onChange={handleChange}
-          multiple
+        <EchoMakerFileInput
+          formData={formData}
+          setFormData={setFormData}
+          handleChange={handleChange}
         />
-        {formData.media.length !== 0 ? (
-          <ol className="echo-media-list">
-            {formData.media.map((file) => (
-              <li className="echo-media-file" key={file.name + file.size}>
-                <button
-                  className="remove-file-button"
-                  value={file.name}
-                  onClick={removeFile}
-                >
-                  X
-                </button>
-                {file.name}
-              </li>
-            ))}
-          </ol>
-        ) : null}
-
         <label htmlFor="text">Description:</label>
         <textarea
           name="text"
