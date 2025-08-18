@@ -189,15 +189,26 @@ export default function EchoMaker({ user }) {
         <label htmlFor="echo_name">Echo Name:</label>
         <input
           type="text"
+          className="echo-name-input"
           name="echo_name"
           value={formData.echo_name}
           onChange={handleChange}
         />
-        <label htmlFor="media">Select Media: </label>
-        <input type="file" name="media" onChange={handleChange} multiple />
+        <label className="echo-media-label" htmlFor="media">
+          Select Media
+        </label>
+        <input
+          type="file"
+          className="echo-media-input"
+          name="media"
+          id="media"
+          onChange={handleChange}
+          multiple
+        />
         <label htmlFor="text">Description:</label>
         <textarea
           name="text"
+          className="echo-textarea"
           id="text"
           onChange={handleChange}
           value={formData.text}
@@ -237,10 +248,14 @@ export default function EchoMaker({ user }) {
           setFormData={setFormData}
           handleChange={handleChange}
         />
+        <button type="submit" className="create-echo-button">
+          Create Echo
+        </button>
         {Object.values(errors).map((error, index) => (
-          <p key={error + index}>{error}</p>
+          <p key={error + index} className="error-message">
+            {error}
+          </p>
         ))}
-        <button type="submit">Create Echo</button>
       </form>
       <EchoMakerGeolocationDisplay
         formData={formData}
