@@ -205,6 +205,18 @@ export default function EchoMaker({ user }) {
     }
   }
 
+  function removeFile(event) {
+    event.preventDefault();
+    const { value } = event.target;
+
+    let currentFiles = formData.media;
+    currentFiles = currentFiles.filter((file) => file.name !== value);
+    setFormData({
+      ...formData,
+      media: currentFiles,
+    });
+  }
+
   return (
     <div className="echo-maker-container">
       <form className="create-echo-form" onSubmit={createEcho}>
@@ -227,9 +239,23 @@ export default function EchoMaker({ user }) {
           onChange={handleChange}
           multiple
         />
-        {formData.media.map((file) => {
-          return <p key={file.name}>{file.name}</p>;
-        })}
+        {formData.media.length !== 0 ? (
+          <ol className="echo-media-list">
+            {formData.media.map((file) => (
+              <li className="echo-media-file" key={file.name + file.size}>
+                <button
+                  className="remove-file-button"
+                  value={file.name}
+                  onClick={removeFile}
+                >
+                  X
+                </button>
+                {file.name}
+              </li>
+            ))}
+          </ol>
+        ) : null}
+
         <label htmlFor="text">Description:</label>
         <textarea
           name="text"

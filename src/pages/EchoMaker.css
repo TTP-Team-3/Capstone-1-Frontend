@@ -95,3 +95,17 @@ select {
 .create-echo-button {
     align-self: center;
 }
+
+.echo-media-list {
+    margin-top: 5px;
+    list-style: none;
+}
+
+.remove-file-button {
+    margin-left: 5px;
+    border: none;
+    cursor: pointer;
+    color: red;
+    background-color: rgba(255, 0, 0, 0.1);
+    font-weight: bold;
+}
