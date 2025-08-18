@@ -68,15 +68,35 @@
 .fab-mini:hover { background: #f4f8ff; }
 .fab-main:active { transform: scale(0.98); }
 .fab-mini.open { box-shadow: 0 12px 22px rgba(0,0,0,0.22); }
-/* map sizing */
-.loggedin-home-container,
-.home-map { height: 100%; width: 100%; }
 
-/* slide-in Nearby panel */
+/* === Container & Map sizing === */
+.loggedin-home-container {
+  position: fixed;
+  inset: 0;           /* top:0 right:0 bottom:0 left:0 */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;   /* prevent scrollbars */
+}
+
+.home-map { width: 100%; height: 100%; }
+
+/* Floating UI wrapper should cover the viewport */
+.floating-ui {
+  position: fixed;
+  inset: 0;            /* full viewport */
+  z-index: 1100;       /* above map, below panel */
+  pointer-events: none;/* let map interact; buttons re-enable below */
+}
+
+/* Re-enable interaction on buttons */
+.fab, .fab-mini { pointer-events: auto; }
+
+/* === Slide-in Nearby panel === */
 .nearby-panel {
-  position: absolute;
-  top: 0; right: 0;
-  height: 100%;
+  position: fixed;     /* overlay; doesn't shift layout */
+  top: 0;
+  right: 0;
+  height: 100vh;
   width: 320px;
   max-width: 85vw;
   background: #fff;
@@ -91,12 +111,26 @@
 .nearby-panel.open { transform: translateX(0); }
 
 .nearby-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 12px; border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ecef;
 }
+
 .nearby-controls { display: flex; align-items: center; gap: 8px; }
 .nearby-controls select { margin-left: 6px; padding: 4px 6px; }
-.nearby-close { background: #f1f3f5; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+
+/* Close button — always on top */
+.nearby-close {
+  background: #f1f3f5;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  position: relative;
+  z-index: 1300;
+}
 .nearby-close:hover { background: #e9ecef; }
 
 .nearby-msg { padding: 12px; color: #444; }
@@ -105,3 +139,133 @@
 .nearby-list { padding: 12px; overflow: auto; flex: 1; }
 
 .radius-fixed { font-size: 0.9rem; color: #555; }
+
+/* Overlay behind the panel for outside-click close */
+.nearby-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1150; /* below panel (1200), above map + FABs */
+}
+
+/* --- Keep right-side FABs clear of the open panel --- */
+.nearby-panel.open ~ .floating-ui .top-right { right: 340px; }
+.nearby-panel.open ~ .floating-ui .bottom-right { right: 340px; }
+
+/* (Optional) responsive tweak for small screens */
+@media (max-width: 480px) {
+  .nearby-panel { width: 280px; }
+  .nearby-panel.open ~ .floating-ui .top-right,
+  .nearby-panel.open ~ .floating-ui .bottom-right { right: 300px; }
+}
+
+/* === Profile mini menu (top-right) === */
+/* Base position: anchor to the Profile FAB (top-right corner) */
+.fab-tr-left,
+.fab-tr-below {
+  position: absolute;   /* inherits .fab-mini look/feel */
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;        /* above map, below side panels */
+}
+
+/* Hidden state already comes from .fab-mini:
+   transform: scale(.5); opacity: 0; pointer-events: none; */
+
+/* Slide left (Friends) */
+.fab-tr-left.open {
+  transform: translateX(-84px) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Slide down (Logout) */
+.fab-tr-below.open {
+  transform: translateY(84px) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Smooth motion */
+.fab-tr-left.open,
+.fab-tr-below.open {
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+/* Keep right-side FABs clear of the open Nearby panel */
+.nearby-panel.open ~ .floating-ui .fab-tr-left,
+.nearby-panel.open ~ .floating-ui .fab-tr-below,
+.nearby-panel.open ~ .floating-ui .top-right,
+.nearby-panel.open ~ .floating-ui .bottom-right {
+  right: 340px; /* panel width + a little breathing room */
+}
+
+/* Responsive nudge for smaller screens */
+@media (max-width: 480px) {
+  .nearby-panel.open ~ .floating-ui .fab-tr-left,
+  .nearby-panel.open ~ .floating-ui .fab-tr-below,
+  .nearby-panel.open ~ .floating-ui .top-right,
+  .nearby-panel.open ~ .floating-ui .bottom-right {
+    right: 300px;
+  }
+}
+
+/* (Optional) keyboard focus ring for accessibility */
+.fab-tr-left:focus-visible,
+.fab-tr-below:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+/* ===== Friends Panel ===== */
+.friends-panel {
+  position: fixed;
+  top: 0; right: 0;
+  height: 100vh;
+  width: 380px;
+  max-width: 92vw;
+  background: #fff;
+  border-left: 1px solid #dee2e6;
+  box-shadow: -6px 0 18px rgba(0,0,0,0.12);
+  z-index: 1400;                 /* above map, fabs, nearby panel */
+  display: flex;
+  flex-direction: column;
+}
+
+.friends-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 12px; border-bottom: 1px solid #e9ecef;
+}
+.friends-tabs { display: flex; gap: 6px; margin-left: auto; margin-right: 8px; }
+.friends-tabs button {
+  border: 1px solid #dee2e6; background: #f8f9fa;
+  border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.9rem;
+}
+.friends-tabs button.active { background: #e7f1ff; border-color: #b6d4fe; }
+
+.friends-close { border: none; background: #f1f3f5; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+.friends-close:hover { background: #e9ecef; }
+
+.friends-body { padding: 12px; overflow: auto; flex: 1; }
+.friends-error { color: #b00020; padding: 8px 12px; }
+.friends-loading { padding: 8px 12px; color: #555; }
+.friends-empty { color: #666; padding: 12px; }
+
+.friends-list { display: grid; gap: 10px; }
+.friends-card {
+  border: 1px solid #edf0f3; border-radius: 10px; padding: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.05);
+}
+
+.friends-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.friends-row-main { min-width: 0; }
+.friends-title { font-weight: 600; }
+.friends-sub { color: #666; font-size: 0.9rem; }
+
+.friends-row-right { display: flex; gap: 8px; }
+.friends-row-right button { padding: 6px 10px; border-radius: 6px; border: 1px solid #dee2e6; cursor: pointer; }
+.friends-row-right .secondary { background: #f8f9fa; }
+.friends-row-right .danger { background: #ffecec; border-color: #ffc9c9; }
+
+.friends-search { display: flex; gap: 8px; margin-bottom: 10px; }
+.friends-search input { flex: 1; padding: 8px 10px; border: 1px solid #dee2e6; border-radius: 6px; }
+.friends-search button { padding: 8px 12px; border-radius: 6px; border: 1px solid #1976d2; background: #1976d2; color: #fff; cursor: pointer; }

@@ -55,7 +55,7 @@ const App = () => {
 
   return (
     <div>
-      <NavBar user={user} onLogout={handleLogout} />
+      {/* <NavBar user={user} onLogout={handleLogout} /> */}
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
