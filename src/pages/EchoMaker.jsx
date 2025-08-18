@@ -21,6 +21,7 @@ export default function EchoMaker({ user }) {
     lat: 0,
     lng: 0,
   });
+  console.log(formData.media);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   // useEffect(() => {
@@ -122,14 +123,35 @@ export default function EchoMaker({ user }) {
         event.target.value = null;
         return;
       }
-      const files = event.target.files[0];
-      if (files.size > Math.pow(10, 9)) {
+      const file = event.target.files[0];
+      if (file.size > Math.pow(10, 9)) {
         alert("File size exceeds limit(1GB). File not added");
         event.target.value = null;
         return;
       }
+      const currentFileNames = formData.media.map((file) => file.name);
+      if (currentFileNames.includes(file.name)) {
+        const overwrite = confirm(
+          "File with this name already exists. Would you like to overwrite it?",
+        );
+        if (overwrite) {
+          let currentMedia = formData.media;
+          currentMedia = currentMedia.filter(
+            (media) => media.name !== file.name,
+          );
+          currentMedia.push(file);
+          setFormData({
+            ...formData,
+            [name]: currentMedia,
+          });
+          return;
+        } else {
+          return;
+        }
+      }
       const temp = [...formData.media];
-      temp.push(files);
+      console.log(file);
+      temp.push(file);
       setFormData({
         ...formData,
         [name]: temp,
@@ -205,6 +227,9 @@ export default function EchoMaker({ user }) {
           onChange={handleChange}
           multiple
         />
+        {formData.media.map((file) => {
+          return <p key={file.name}>{file.name}</p>;
+        })}
         <label htmlFor="text">Description:</label>
         <textarea
           name="text"
