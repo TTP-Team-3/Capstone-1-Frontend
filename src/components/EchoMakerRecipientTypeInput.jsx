@@ -36,7 +36,7 @@ export default function EchoMakerRecipientTypeInput({
           <option value="self">Self</option>
           <option value="custom">Custom</option>
         </select>
-        {formData.recipient_type === "friends" && (
+        {formData.recipient_type === "custom" && (
           <>
             <select name="customRecipients" onChange={handleChange}>
               {MOCK_USERS.map((user) => (

@@ -31,7 +31,7 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
       <MapContainer
         center={[formData.lat, formData.lng]}
         zoom={15}
-        style={{ width: "90%", height: "90%" }}
+        className="leaflet-map-container"
       >
         <div className="overlay">Click on marker to move</div>
         <TileLayer

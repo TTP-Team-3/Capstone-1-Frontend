@@ -22,7 +22,7 @@ export default function EchoMaker({ user }) {
     lat: 0,
     lng: 0,
   });
-  console.log(formData.media);
+  console.log(formData);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   // useEffect(() => {
@@ -81,14 +81,14 @@ export default function EchoMaker({ user }) {
       });
     }
 
-    if (formData.userIds.length > 0) {
-      formData.userIds.forEach((userId) => {
+    if (formData.customRecipients.length > 0) {
+      formData.customRecipients.forEach((userId) => {
         formDataToSend.append("userIds", userId);
       });
     }
 
     const otherKeys = Object.keys(formData).filter(
-      (key) => key !== "media" && key !== "tags" && key !== "userIds",
+      (key) => key !== "media" && key !== "tags" && key !== "customRecipients",
     );
     otherKeys.forEach((key) => {
       if (formData[key] !== "" && formData[key] != null) {
@@ -98,10 +98,10 @@ export default function EchoMaker({ user }) {
 
     if (
       formDataToSend.recipient_type !== "custom" &&
-      formDataToSend.userIds &&
-      formDataToSend.userIds.length > 0
+      formDataToSend.customRecipients &&
+      formDataToSend.customRecipients.length > 0
     ) {
-      formDataToSend.userIds = [];
+      formDataToSend.customRecipients = [];
     }
 
     await axios.post(`${API_URL}/api/echoes/`, formDataToSend, {
@@ -164,8 +164,8 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
-    } else if (name === "userIds") {
-      const temp = [...formData.userIds];
+    } else if (name === "customRecipients") {
+      const temp = [...formData.customRecipients];
       temp.push(Number(value));
       setFormData({
         ...formData,
