@@ -51,6 +51,8 @@ export default function EchoMaker({ user }) {
     }
     const now = new Date();
     const unlock_datetime = new Date(formData.unlock_datetime);
+    console.log("Now: ", now);
+    console.log("New date: ", unlock_datetime);
     if (unlock_datetime <= now) {
       errors["unlock_datetime"] = "Unlock date and time must be in the future!";
     }
