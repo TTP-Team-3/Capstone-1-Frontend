@@ -124,38 +124,39 @@ export default function EchoMaker({ user }) {
         event.target.value = null;
         return;
       }
-      const file = event.target.files[0];
-      if (file.size > Math.pow(10, 9)) {
-        alert("File size exceeds limit(1GB). File not added");
-        event.target.value = null;
-        return;
-      }
-      const currentFileNames = formData.media.map((file) => file.name);
-      if (currentFileNames.includes(file.name)) {
-        const overwrite = confirm(
-          "File with this name already exists. Would you like to overwrite it?",
-        );
-        if (overwrite) {
-          let currentMedia = formData.media;
-          currentMedia = currentMedia.filter(
-            (media) => media.name !== file.name,
-          );
-          currentMedia.push(file);
-          setFormData({
-            ...formData,
-            [name]: currentMedia,
-          });
-          return;
-        } else {
+      const files = [...event.target.files];
+      let filesCurrentlyInMedia = [...formData.media];
+      files.forEach((file) => {
+        if (file.size > Math.pow(10, 9)) {
+          alert("File size exceeds limit(1GB). File not added");
+          event.target.value = null;
           return;
         }
-      }
-      const temp = [...formData.media];
-      console.log(file);
-      temp.push(file);
+        const currentFileNames = filesCurrentlyInMedia.map((file) => file.name);
+        if (currentFileNames.includes(file.name)) {
+          const overwrite = confirm(
+            "File with this name already exists. Would you like to overwrite it?",
+          );
+          if (overwrite) {
+            filesCurrentlyInMedia = filesCurrentlyInMedia.filter(
+              (media) => media.name !== file.name,
+            );
+            filesCurrentlyInMedia.push(file);
+            setFormData({
+              ...formData,
+              [name]: filesCurrentlyInMedia,
+            });
+            return;
+          } else {
+            return;
+          }
+        }
+
+        filesCurrentlyInMedia.push(file);
+      });
       setFormData({
         ...formData,
-        [name]: temp,
+        [name]: filesCurrentlyInMedia,
       });
     } else if (name === "tags") {
       const temp = [...formData[name]];
