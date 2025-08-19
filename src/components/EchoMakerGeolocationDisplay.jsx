@@ -9,6 +9,7 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
       dragend() {
         const marker = markerRef.current;
         if (marker != null) {
+          console.log("Form data: ", formData);
           setFormData({
             ...formData,
             lat: marker.getLatLng().lat,
@@ -17,7 +18,19 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
         }
       },
     }),
-    [],
+    [
+      formData.echo_name,
+      formData.media,
+      formData.text,
+      formData.tags,
+      formData.show_sender_name,
+      formData.unlock_datetime,
+      formData.recipient_type,
+      formData.customRecipients,
+      formData.location_locked,
+      formData.echo_lat,
+      formData.echo_lng,
+    ],
   );
   const toggleDraggable = useCallback(() => {
     setDraggable((d) => !d);
