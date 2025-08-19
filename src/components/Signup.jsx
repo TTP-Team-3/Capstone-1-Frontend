@@ -8,6 +8,7 @@ const Signup = ({ setUser }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    email: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
@@ -35,6 +36,12 @@ const Signup = ({ setUser }) => {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -53,8 +60,9 @@ const Signup = ({ setUser }) => {
         {
           username: formData.username,
           password: formData.password,
+          email: formData.email,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setUser(response.data.user);
@@ -139,6 +147,19 @@ const Signup = ({ setUser }) => {
             {errors.confirmPassword && (
               <span className="error-text">{errors.confirmPassword}</span>
             )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={errors.email ? "error" : ""}
+            />
+            {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
           <button type="submit" disabled={isLoading}>
