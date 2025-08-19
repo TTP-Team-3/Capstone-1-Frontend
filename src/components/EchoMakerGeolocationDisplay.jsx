@@ -9,7 +9,6 @@ export default function EchoMakerGeolocationDisplay({ formData, setFormData }) {
       dragend() {
         const marker = markerRef.current;
         if (marker != null) {
-          console.log("Form data: ", formData);
           setFormData({
             ...formData,
             lat: marker.getLatLng().lat,

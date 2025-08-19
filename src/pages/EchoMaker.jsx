@@ -22,7 +22,6 @@ export default function EchoMaker({ user }) {
     lat: 0,
     lng: 0,
   });
-  console.log(formData);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   // useEffect(() => {
