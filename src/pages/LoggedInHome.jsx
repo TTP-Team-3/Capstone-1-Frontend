@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./LoggedInHome.css";
+import L from "leaflet";
 import EchoList from "../components/EchoList";
 import EchoPopup from "../components/EchoPopup";
 import { API_URL } from "../shared";
+import FriendsPanel from "../components/FriendsPanel";
 
 const USER_RADIUS_METERS = 167;
 const GEOLOCK_VISIBILITY_RADIUS = 1200;
@@ -33,8 +35,14 @@ const LoggedInHome = ({ user }) => {
   const navigate = useNavigate();
   const currentUserId = user?.id ?? null;
 
-  // FAB stages: 0=closed, 1=inbox+filter, 2=+nearby
+  // FAB stages: 0=closed, 1=inbox+filter+nearby (your existing menu)
   const [menuStage, setMenuStage] = useState(0);
+
+  // Profile mini-menu stage: 0=closed, 1=show friends/logout
+  const [profileStage, setProfileStage] = useState(0);
+
+  // Friends popup
+  const [friendsOpen, setFriendsOpen] = useState(false);
 
   // Live geolocation
   const [position, setPosition] = useState(null); // {lat, lng}
@@ -45,7 +53,7 @@ const LoggedInHome = ({ user }) => {
   const [allEchoes, setAllEchoes] = useState([]);
   const [loadErr, setLoadErr] = useState(null);
 
-  // Slide‑in panel state
+  // Slide-in panel state
   const [nearbyOpen, setNearbyOpen] = useState(false);
   const [nearTab, setNearTab] = useState("nongeo"); // "nongeo" | "geolocked" | "opened"
 
@@ -217,11 +225,48 @@ const LoggedInHome = ({ user }) => {
 
   const handleUnlock = (id) => doUnlock(id);
 
-  // FAB actions
-  const cycleMenu = () => setMenuStage((s) => (s + 1) % 3);
-  const goInbox = () => { navigate("/inbox"); setMenuStage(0); };
-  const openFilter = () => { alert("Filter modal opened"); setMenuStage(0); };
-  const toggleNearby = () => { setNearbyOpen((v) => !v); setMenuStage(0); };
+  // ==== FAB actions ====
+  const cycleMenu = () => { setMenuStage((s) => (s + 1) % 3); setProfileStage(0); };
+  const goInbox = () => { navigate("/inbox"); setMenuStage(0); setProfileStage(0); };
+  const openFilter = () => { alert("Filter modal opened"); setMenuStage(0); setProfileStage(0); };
+  const toggleNearby = () => { setNearbyOpen((v) => !v); setMenuStage(0); setProfileStage(0); };
+  const goEchoMaker = () => { navigate("/echo-maker"); setMenuStage(0); setProfileStage(0); };
+  const goProfile = () => {
+    if (currentUserId) navigate(`/profile/${currentUserId}`);
+    else navigate("/login");
+    setMenuStage(0);
+    setProfileStage(0);
+  };
+
+  // Profile main: first click shows mini actions, second click jumps to profile
+  const onProfileMain = () => {
+    if (profileStage === 0) setProfileStage(1);
+    else goProfile();
+  };
+
+  // Close profile mini menu with Escape
+  useEffect(() => {
+    if (profileStage === 0) return;
+    const onKey = (e) => { if (e.key === "Escape") setProfileStage(0); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [profileStage]);
+
+  // Logout helper
+  const doLogout = async () => {
+    try { await fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
+    setProfileStage(0);
+    navigate("/login");
+    window.location.reload();
+  };
+
+  // Close Nearby panel with Escape
+  useEffect(() => {
+    if (!nearbyOpen) return;
+    const onKey = (e) => { if (e.key === "Escape") setNearbyOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nearbyOpen]);
 
   const mapCenter = useMemo(
     () => (position ? [position.lat, position.lng] : [40.7128, -74.006]),
@@ -230,10 +275,15 @@ const LoggedInHome = ({ user }) => {
 
   return (
     <div className="loggedin-home-container">
+      {/* Overlay to close Nearby on outside click */}
+      {nearbyOpen && (
+        <div className="nearby-overlay" onClick={() => setNearbyOpen(false)} aria-hidden="true" />
+      )}
+
       <MapContainer center={mapCenter} zoom={INITIAL_ZOOM} scrollWheelZoom className="home-map">
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         />
 
         {position && <RecenterMap position={[position.lat, position.lng]} />}
@@ -267,11 +317,16 @@ const LoggedInHome = ({ user }) => {
       {loadErr && <div className="error-banner">{loadErr}</div>}
 
       {/* Slide-in panel with tabs */}
-      <aside className={`nearby-panel ${nearbyOpen ? "open" : ""}`}>
+      <aside
+        className={`nearby-panel ${nearbyOpen ? "open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Nearby echoes"
+      >
         <div className="nearby-header">
           <div style={{ display: "flex", gap: 6 }}>
             <button className={`tab ${nearTab === "nongeo" ? "active" : ""}`} onClick={() => setNearTab("nongeo")}>
-              Non‑Geolocked
+              Non-Geolocked
             </button>
             <button className={`tab ${nearTab === "geolocked" ? "active" : ""}`} onClick={() => setNearTab("geolocked")}>
               Geolocked (nearby)
@@ -282,7 +337,7 @@ const LoggedInHome = ({ user }) => {
           </div>
           <div className="nearby-controls">
             {nearTab === "geolocked" && <span className="radius-fixed">Radius: ~0.167 km</span>}
-            <button className="nearby-close" onClick={() => setNearbyOpen(false)}>✕</button>
+            <button className="nearby-close" onClick={() => setNearbyOpen(false)} aria-label="Close nearby panel">✕</button>
           </div>
         </div>
 
@@ -298,10 +353,14 @@ const LoggedInHome = ({ user }) => {
             )
           )}
           {nearTab === "opened" && (
-            <EchoList echoes={openedEchoes} onEchoClick={(id) => {
-              const e = openedEchoes.find(x => x.id === id);
-              if (e) setPopupEcho(e);
-            }} onUnlock={() => {}} />
+            <EchoList
+              echoes={openedEchoes}
+              onEchoClick={(id) => {
+                const e = openedEchoes.find(x => x.id === id);
+                if (e) setPopupEcho(e);
+              }}
+              onUnlock={() => {}}
+            />
           )}
         </div>
       </aside>
@@ -313,10 +372,36 @@ const LoggedInHome = ({ user }) => {
         </button>
         <button className={`fab-mini fab-above ${menuStage >= 1 ? "open" : ""}`} aria-label="Inbox" onClick={goInbox} title="Inbox">📋</button>
         <button className={`fab-mini fab-right ${menuStage >= 1 ? "open" : ""}`} aria-label="Filter" onClick={openFilter} title="Filter">⚙️</button>
-        <button className={`fab-mini fab-diag ${menuStage >= 2 ? "open" : ""}`} aria-label="Nearby Echoes" onClick={toggleNearby} title="Nearby Echoes">📍</button>
-        <button className="fab bottom-right" aria-label="Create">＋</button>
-        <button className="fab top-right" aria-label="Profile">👤</button>
+        <button className={`fab-mini fab-diag ${menuStage >= 1 ? "open" : ""}`} aria-label="Nearby Echoes" onClick={toggleNearby} title="Nearby Echoes">📍</button>
+
+        {/* Create */}
+        <button className="fab bottom-right" aria-label="Create" onClick={goEchoMaker} title="Create Echo">＋</button>
+
+        {/* Profile main (two-stage) */}
+        <button className="fab top-right" aria-label="Profile" onClick={onProfileMain} title="Profile">👤</button>
+        {/* Stage 1 mini actions (show when profileStage >= 1) */}
+        <button
+          className={`fab-mini fab-tr-left ${profileStage >= 1 ? "open" : ""}`}
+          aria-label="Friends"
+          onClick={() => { setProfileStage(0); setMenuStage(0); setFriendsOpen(true); }}
+          title="Friends"
+        >👥</button>
+        <button
+          className={`fab-mini fab-tr-below ${profileStage >= 1 ? "open" : ""}`}
+          aria-label="Logout"
+          onClick={doLogout}
+          title="Logout"
+        >⎋</button>
       </div>
+
+      {/* Friends popup */}
+      {friendsOpen && (
+        <FriendsPanel
+          open={friendsOpen}
+          onClose={() => setFriendsOpen(false)}
+          user={user}
+        />
+      )}
 
       {/* 🔓 Unlock popup */}
       {popupEcho && <EchoPopup echo={popupEcho} onClose={() => setPopupEcho(null)} />}
