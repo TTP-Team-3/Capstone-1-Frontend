@@ -13,12 +13,12 @@ export default function EchoMakerRecipientTypeInput({
 
   function removeFriend(event) {
     event.preventDefault();
-    const friendName = event.target.textContent;
-    const friendId = MOCK_USERS.find((user) => user.name === friendName).id;
-    const temp = formData.friendIds.filter((id) => id !== friendId);
+    const userName = event.target.textContent;
+    const userId = MOCK_USERS.find((user) => user.name === userName).id;
+    const temp = formData.customRecipients.filter((id) => id !== userId);
     setFormData({
       ...formData,
-      friendIds: temp,
+      customRecipients: temp,
     });
   }
   return (
@@ -36,23 +36,23 @@ export default function EchoMakerRecipientTypeInput({
           <option value="self">Self</option>
           <option value="custom">Custom</option>
         </select>
-        {formData.recipient_type === "friends" && (
+        {formData.recipient_type === "custom" && (
           <>
-            <select name="friendIds" onChange={handleChange}>
+            <select name="customRecipients" onChange={handleChange}>
               {MOCK_USERS.map((user) => (
                 <option
                   key={user.id}
                   value={user.id}
-                  disabled={formData.friendIds.includes(Number(user.id))}
+                  disabled={formData.customRecipients.includes(Number(user.id))}
                 >
                   {user.name}
                 </option>
               ))}
             </select>
             <ul className="list-of-friends">
-              {formData.friendIds.map((friendId, index) => (
-                <li key={friendId} onClick={removeFriend}>
-                  {MOCK_USERS.find((user) => user.id === friendId).name}
+              {formData.customRecipients.map((userId, index) => (
+                <li key={userId} onClick={removeFriend}>
+                  {MOCK_USERS.find((user) => user.id === userId).name}
                 </li>
               ))}
             </ul>

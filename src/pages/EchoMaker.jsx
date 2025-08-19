@@ -6,6 +6,7 @@ import EchoMakerRecipientTypeInput from "../components/EchoMakerRecipientTypeInp
 import EchoMakerGeolocationDisplay from "../components/EchoMakerGeolocationDisplay";
 import axios from "axios";
 import { API_URL } from "../shared";
+import EchoMakerFileInput from "../components/EchoMakerFileInput";
 
 export default function EchoMaker({ user }) {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ export default function EchoMaker({ user }) {
     show_sender_name: true,
     unlock_datetime: "",
     recipient_type: "",
-    userIds: [],
+    customRecipients: [],
     location_locked: false,
     lat: 0,
     lng: 0,
@@ -43,8 +44,11 @@ export default function EchoMaker({ user }) {
     if (formData.recipient_type === "") {
       errors["recipient_type"] = "Please choose a recipient type!";
     }
-    if (formData.recipient_type === "custom" && formData.userIds.length === 0) {
-      errors["userIds"] = "Please include users to share with.";
+    if (
+      formData.recipient_type === "custom" &&
+      formData.customRecipients.length === 0
+    ) {
+      errors["customRecipients"] = "Please include users to share with.";
     }
     if (formData.unlock_datetime === "") {
       errors["unlock_datetime"] = "Please enter an unlock date and time!";
@@ -76,14 +80,14 @@ export default function EchoMaker({ user }) {
       });
     }
 
-    if (formData.userIds.length > 0) {
-      formData.userIds.forEach((userId) => {
+    if (formData.customRecipients.length > 0) {
+      formData.customRecipients.forEach((userId) => {
         formDataToSend.append("userIds", userId);
       });
     }
 
     const otherKeys = Object.keys(formData).filter(
-      (key) => key !== "media" && key !== "tags" && key !== "userIds",
+      (key) => key !== "media" && key !== "tags" && key !== "customRecipients",
     );
     otherKeys.forEach((key) => {
       if (formData[key] !== "" && formData[key] != null) {
@@ -93,10 +97,10 @@ export default function EchoMaker({ user }) {
 
     if (
       formDataToSend.recipient_type !== "custom" &&
-      formDataToSend.userIds &&
-      formDataToSend.userIds.length > 0
+      formDataToSend.customRecipients &&
+      formDataToSend.customRecipients.length > 0
     ) {
-      formDataToSend.userIds = [];
+      formDataToSend.customRecipients = [];
     }
 
     await axios.post(`${API_URL}/api/echoes/`, formDataToSend, {
@@ -119,17 +123,39 @@ export default function EchoMaker({ user }) {
         event.target.value = null;
         return;
       }
-      const files = event.target.files[0];
-      if (files.size > Math.pow(10, 9)) {
-        alert("File size exceeds limit(1GB). File not added");
-        event.target.value = null;
-        return;
-      }
-      const temp = [...formData.media];
-      temp.push(files);
+      const files = [...event.target.files];
+      let filesCurrentlyInMedia = [...formData.media];
+      files.forEach((file) => {
+        if (file.size > Math.pow(10, 9)) {
+          alert("File size exceeds limit(1GB). File not added");
+          event.target.value = null;
+          return;
+        }
+        const currentFileNames = filesCurrentlyInMedia.map((file) => file.name);
+        if (currentFileNames.includes(file.name)) {
+          const overwrite = confirm(
+            "File with this name already exists. Would you like to overwrite it?",
+          );
+          if (overwrite) {
+            filesCurrentlyInMedia = filesCurrentlyInMedia.filter(
+              (media) => media.name !== file.name,
+            );
+            filesCurrentlyInMedia.push(file);
+            setFormData({
+              ...formData,
+              [name]: filesCurrentlyInMedia,
+            });
+            return;
+          } else {
+            return;
+          }
+        }
+
+        filesCurrentlyInMedia.push(file);
+      });
       setFormData({
         ...formData,
-        [name]: temp,
+        [name]: filesCurrentlyInMedia,
       });
     } else if (name === "tags") {
       const temp = [...formData[name]];
@@ -138,8 +164,8 @@ export default function EchoMaker({ user }) {
         ...formData,
         [name]: temp,
       });
-    } else if (name === "userIds") {
-      const temp = [...formData.userIds];
+    } else if (name === "customRecipients") {
+      const temp = [...formData.customRecipients];
       temp.push(Number(value));
       setFormData({
         ...formData,
@@ -186,15 +212,23 @@ export default function EchoMaker({ user }) {
         <label htmlFor="echo_name">Echo Name:</label>
         <input
           type="text"
+          className="echo-name-input"
           name="echo_name"
           value={formData.echo_name}
           onChange={handleChange}
         />
-        <label htmlFor="media">Select Media: </label>
-        <input type="file" name="media" onChange={handleChange} multiple />
+        <label className="echo-media-label" htmlFor="media">
+          Select Media
+        </label>
+        <EchoMakerFileInput
+          formData={formData}
+          setFormData={setFormData}
+          handleChange={handleChange}
+        />
         <label htmlFor="text">Description:</label>
         <textarea
           name="text"
+          className="echo-textarea"
           id="text"
           onChange={handleChange}
           value={formData.text}
@@ -234,10 +268,14 @@ export default function EchoMaker({ user }) {
           setFormData={setFormData}
           handleChange={handleChange}
         />
+        <button type="submit" className="create-echo-button">
+          Create Echo
+        </button>
         {Object.values(errors).map((error, index) => (
-          <p key={error + index}>{error}</p>
+          <p key={error + index} className="error-message">
+            {error}
+          </p>
         ))}
-        <button type="submit">Create Echo</button>
       </form>
       <EchoMakerGeolocationDisplay
         formData={formData}
