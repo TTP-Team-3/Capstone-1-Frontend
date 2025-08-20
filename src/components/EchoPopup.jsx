@@ -31,7 +31,10 @@ const EchoPopup = ({ echo, onClose }) => {
           media.map((file) => {
             if (file.type === "video") {
               return (
-                <video controls>
+                <video
+                  className="echo-media echo-video"
+                  controls
+                >
                   <source src={file.signed_url} width="300px" />
                 </video>
               );

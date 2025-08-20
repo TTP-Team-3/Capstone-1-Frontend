@@ -43,3 +43,22 @@
   border-radius: 6px;
   cursor: pointer;
 }
+/* Shared styles for all media */
+.echo-media {
+  max-width: 100%;
+  display: block;
+  margin: 8px auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Image-specific tweaks */
+.echo-img {
+  object-fit: cover;
+}
+
+/* Video-specific tweaks */
+.echo-video {
+  max-height: 360px;   /* prevent super tall players */
+  background: #000;    /* black bars while loading */
+}
