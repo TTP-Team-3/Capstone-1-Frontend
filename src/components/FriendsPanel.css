@@ -1,0 +1,23 @@
+/* ===== Friends Panel ===== */
+.friends-panel {
+  width: 420px;            /* was 380px */
+  max-width: 95vw;
+}
+
+.friends-header {
+  padding: 12px 14px;
+  position: sticky;        /* keep header (and ✕) visible while scrolling */
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.friends-tabs {
+  gap: 7px;
+}
+
+.friends-close {
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 10px;
+}

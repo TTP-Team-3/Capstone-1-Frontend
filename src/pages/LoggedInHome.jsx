@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./LoggedInHome.css";
+
 import L from "leaflet";
 import EchoList from "../components/EchoList";
 import EchoPopup from "../components/EchoPopup";
@@ -174,54 +175,64 @@ const LoggedInHome = ({ user }) => {
   }, [allEchoes, openedIds, position]);
 
   // ---- Unlock + Open handlers ----
-  const persistToHistory = (unlockedEcho) => {
-    try {
-      const prev = JSON.parse(localStorage.getItem("echo_history") || "[]");
-      const next = [unlockedEcho, ...prev.filter(e => e.id !== unlockedEcho.id)];
-      localStorage.setItem("echo_history", JSON.stringify(next));
-    } catch {}
-    setOpenedIds(prev => new Set(prev).add(unlockedEcho.id));
-  };
+const persistToHistory = (unlockedEcho) => {
+  try {
+    const prev = JSON.parse(localStorage.getItem("echo_history") || "[]");
+    const next = [unlockedEcho, ...prev.filter(e => e.id !== unlockedEcho.id)];
+    localStorage.setItem("echo_history", JSON.stringify(next));
+  } catch {}
+  setOpenedIds(prev => new Set(prev).add(unlockedEcho.id));
+};
 
-  const doUnlock = async (id) => {
-    // find in any list we have locally
-    const echo =
-      allEchoes.find(e => e.id === id) ||
-      nonGeolockedEchoes.find(e => e.id === id) ||
-      geolockedNearbyEchoes.find(e => e.id === id);
-    if (!echo) return;
+const doUnlock = async (id) => {
+  const echo =
+    allEchoes.find(e => e.id === id) ||
+    nonGeolockedEchoes.find(e => e.id === id) ||
+    geolockedNearbyEchoes.find(e => e.id === id);
+  if (!echo) return;
 
-    try {
-      // optimistic: show popup immediately as unlocked
-      setPopupEcho({ ...echo, client_unlocked: true });
+  // ⛔ time gate
+  const unlockAt = echo.unlock_datetime ? new Date(echo.unlock_datetime).getTime() : 0;
+  if (unlockAt && Date.now() < unlockAt) {
+    alert(`This echo unlocks on ${new Date(unlockAt).toLocaleString()}.`);
+    return;
+  }
 
-      const res = await fetch(`${API_URL}/api/echoes/${id}/unlock`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const updated = await res.json();
-
-      // persist to history and hide from unopened tabs
-      persistToHistory(updated);
-      setPopupEcho(updated);
-    } catch (err) {
-      console.error("Unlock failed:", err);
-      alert("Failed to unlock. Please try again.");
-      setPopupEcho(null);
-    }
-  };
-
-  const handleEchoClick = (id) => {
-    // If it's already opened, show it; otherwise try to unlock (server enforces time/visibility).
-    if (openedIds.has(id)) {
-      const e = openedEchoes.find(x => x.id === id) || allEchoes.find(x => x.id === id);
-      if (e) setPopupEcho(e);
+  // ⛔ distance gate for geo-locked echoes
+  if (echo.location_locked && echo.lat && echo.lng) {
+    if (!position || distanceM(position, { lat: echo.lat, lng: echo.lng }) > USER_RADIUS_METERS) {
+      alert("You need to be closer to unlock this echo.");
       return;
     }
-    doUnlock(id);
-  };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/echoes/${id}/unlock`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const updated = await res.json();
+
+    persistToHistory(updated);
+    setPopupEcho(updated); // only show after success
+  } catch (err) {
+    console.error("Unlock failed:", err);
+    alert("Failed to unlock. Please try again.");
+    setPopupEcho(null);
+  }
+};
+
+const handleEchoClick = (id) => {
+  // If already opened, just show it; otherwise attempt unlock (with checks above)
+  if (openedIds.has(id)) {
+    const e = openedEchoes.find(x => x.id === id) || allEchoes.find(x => x.id === id);
+    if (e) setPopupEcho(e);
+    return;
+  }
+  doUnlock(id);
+};
 
   const handleUnlock = (id) => doUnlock(id);
 
