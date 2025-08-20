@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import "./HomeStyles.css";
+import "./csspro/HomeStyles.pro.css";
 import L from "leaflet";
 import LoggedInHome from "./LoggedInHome";
 
@@ -38,6 +39,7 @@ const Home = ({ user }) => {
       </MapContainer>
 
       <div className="home-overlay">
+        <div className="home-hero-box">
         <h1 className="home-title">EchoCache</h1>
         <p className="home-tagline">Save a message for your future self — or someone else</p>
 
@@ -45,6 +47,7 @@ const Home = ({ user }) => {
           <Link to="/signup" className="home-btn">Sign Up</Link>
           <Link to="/login" className="home-btn secondary">Log In</Link>
         </div>
+      </div>
       </div>
     </div>
   );

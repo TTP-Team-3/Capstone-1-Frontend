@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { API_URL } from "../shared";
+import "./FriendsPanel.css";
 
 const Tab = { FRIENDS: "friends", INCOMING: "incoming", OUTGOING: "outgoing", FIND: "find" };
 

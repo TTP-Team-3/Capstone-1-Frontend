@@ -269,3 +269,23 @@
 .friends-search { display: flex; gap: 8px; margin-bottom: 10px; }
 .friends-search input { flex: 1; padding: 8px 10px; border: 1px solid #dee2e6; border-radius: 6px; }
 .friends-search button { padding: 8px 12px; border-radius: 6px; border: 1px solid #1976d2; background: #1976d2; color: #fff; cursor: pointer; }
+.nearby-panel {
+  width: 360px;         /* was narrower, increase a bit */
+  max-width: 90vw;
+  height: 100%;         /* extend full height so ✕ never clips */
+  right: 0;
+}
+
+.nearby-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;        /* add padding to keep ✕ clear */
+}
+
+.nearby-close {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

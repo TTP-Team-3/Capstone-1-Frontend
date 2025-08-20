@@ -25,22 +25,24 @@ const EchoPopup = ({ echo, onClose }) => {
   return (
     <div className="popup-overlay" onClick={onClose}>
       <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-        <h2 className="popup-title">Unlocked Echo</h2>
+        <h2 className="popup-title">{echo.echo_name || "Unlocked Echo"}</h2>
         <p className="popup-text">{echo.text}</p>
+       <div className="echo-media-strip" role="region" aria-label="Echo media gallery"></div>
         {media.length !== 0 &&
           media.map((file) => {
             if (file.type === "video") {
               return (
                 <video
                   className="echo-media echo-video"
+                  src={file.signed_url}
                   controls
-                >
-                  <source src={file.signed_url} width="300px" />
-                </video>
+                />
+                
               );
             } else {
               return (
                 <img
+                  className="echo-media echo-img"
                   key={file.file_size}
                   src={file.signed_url}
                   alt={file.name}

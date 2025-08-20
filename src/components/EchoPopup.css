@@ -59,6 +59,6 @@
 
 /* Video-specific tweaks */
 .echo-video {
-  max-height: 360px;   /* prevent super tall players */
-  background: #000;    /* black bars while loading */
+  max-height: 360px;   
+  background: #000;   
 }
